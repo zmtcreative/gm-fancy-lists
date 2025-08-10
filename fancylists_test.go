@@ -184,7 +184,7 @@ i. Third item
 </ol>`},
 }
 
-func TestAlerts(t *testing.T) {
+func TestFancyLists(t *testing.T) {
 	for i, c := range cases {
 		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 			No:          i,
