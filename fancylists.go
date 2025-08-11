@@ -854,11 +854,13 @@ func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node
 		_ = w.WriteByte('<')
 		_, _ = w.WriteString(tag)
 
-		if n.IsOrdered() {
-			// Add fancy class and attributes
-			_, _ = w.WriteString(` class="fancy`)
+		// Handle class attribute - combine fancy list classes with user-defined classes
+		var classValues []string
 
-			// Determine list type class
+		if n.IsOrdered() {
+			// Add fancy class and determine list type class
+			classValues = append(classValues, "fancy")
+
 			if typeAttr, ok := n.AttributeString("type"); ok {
 				typeBytes, ok := typeAttr.([]byte)
 				if !ok {
@@ -871,23 +873,47 @@ func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node
 					typeStr := string(typeBytes)
 					switch typeStr {
 					case "a":
-						_, _ = w.WriteString(` fl-lcalpha"`)
+						classValues = append(classValues, "fl-lcalpha")
 					case "A":
-						_, _ = w.WriteString(` fl-ucalpha"`)
+						classValues = append(classValues, "fl-ucalpha")
 					case "i":
-						_, _ = w.WriteString(` fl-lcroman"`)
+						classValues = append(classValues, "fl-lcroman")
 					case "I":
-						_, _ = w.WriteString(` fl-ucroman"`)
+						classValues = append(classValues, "fl-ucroman")
 					default:
-						_, _ = w.WriteString(` fl-num"`)
+						classValues = append(classValues, "fl-num")
 					}
 				} else {
-					_, _ = w.WriteString(` fl-num"`)
+					classValues = append(classValues, "fl-num")
 				}
 			} else {
-				_, _ = w.WriteString(` fl-num"`)
+				classValues = append(classValues, "fl-num")
 			}
+		}
 
+		// Add user-defined class attributes from goldmark-attributes extension
+		if classAttr, ok := n.AttributeString("class"); ok {
+			if classBytes, ok := classAttr.([]byte); ok {
+				classValues = append(classValues, string(classBytes))
+			} else if classStr, ok := classAttr.(string); ok {
+				classValues = append(classValues, classStr)
+			}
+		}
+
+		// Write the class attribute if we have any classes
+		if len(classValues) > 0 {
+			_, _ = w.WriteString(` class="`)
+			for i, class := range classValues {
+				if i > 0 {
+					_ = w.WriteByte(' ')
+				}
+				_, _ = w.WriteString(class)
+			}
+			_ = w.WriteByte('"')
+		}
+
+		// Handle ordered list specific attributes
+		if n.IsOrdered() {
 			if typeAttr, ok := n.AttributeString("type"); ok {
 				_, _ = w.WriteString(` type="`)
 				typeBytes, ok := typeAttr.([]byte)
@@ -913,6 +939,26 @@ func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node
 			} else {
 				// Always add start="1" for consistency
 				_, _ = w.WriteString(` start="1"`)
+			}
+		}
+
+		// Handle all other attributes from goldmark-attributes extension
+		if n.Attributes() != nil {
+			for _, attr := range n.Attributes() {
+				name := string(attr.Name)
+				// Skip attributes we've already handled
+				if name != "class" && name != "type" {
+					_, _ = w.WriteString(` `)
+					_, _ = w.WriteString(name)
+					_, _ = w.WriteString(`="`)
+					// Handle different value types
+					if valueBytes, ok := attr.Value.([]byte); ok {
+						_, _ = w.Write(valueBytes)
+					} else if valueStr, ok := attr.Value.(string); ok {
+						_, _ = w.WriteString(valueStr)
+					}
+					_ = w.WriteByte('"')
+				}
 			}
 		}
 
