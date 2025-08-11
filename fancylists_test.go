@@ -159,6 +159,39 @@ var cases = [...]TestCase{
 <li>Third item</li>
 </ol>`},
 	{
+		desc: "Simple Ordered List with same letter (lowercase)",
+		md:   `a. First item
+a. Second item
+a. Third item
+`,
+		html: `<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "Simple Ordered List with same roman numeral (lowercase)",
+		md:   `i. First item
+i. Second item
+i. Third item
+`,
+		html: `<ol class="fancy fl-lcroman" type="i" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "Simple Ordered List with lower roman numeral in second and third item (lowercase)",
+		md:   `ii. First item
+i. Second item
+i. Third item
+`,
+		html: `<ol class="fancy fl-lcroman" type="i" start="2">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
 		desc: "Simple Ordered List with number and hash",
 		md:   `1. First item
 #. Second item
@@ -214,15 +247,38 @@ a. Third item
 <li>Third item</li>
 </ol>`},
 	{
-		desc: "Simple Ordered List with roman numeral (lowercase)",
-		md:   `i. First item
-ii. Second item
+		desc: "Simple Ordered List with first 4 roman numerals (lowercase)",
+		md:   `  i. First item
+ ii. Second item
 iii. Third item
+ iv. Fourth item
 `,
 		html: `<ol class="fancy fl-lcroman" type="i" start="1">
 <li>First item</li>
 <li>Second item</li>
 <li>Third item</li>
+<li>Fourth item</li>
+</ol>`},
+	{
+		desc: "Simple Ordered List with first seven roman numeral (lowercase)",
+		md:   `  i. First item
+ ii. Second item
+iii. Third item
+ iv. Fourth item
+  v. Fifth item
+ vi. Sixth item
+vii. Seventh item
+`,
+		html: `<ol class="fancy fl-lcroman" type="i" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+<li>Fourth item</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="22">
+<li>Fifth item</li>
+<li>Sixth item</li>
+<li>Seventh item</li>
 </ol>`},
 	{
 		desc: "Ordered List with roman numeral NOT beginning with 'i' (treated as alphabetic)",
@@ -242,6 +298,17 @@ II. Second item
 III. Third item
 `,
 		html: `<ol class="fancy fl-ucroman" type="I" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "Simple Ordered List with roman numeral (uppercase) starting at IV",
+		md:   `IV. First item
+#. Second item
+#. Third item
+`,
+		html: `<ol class="fancy fl-ucroman" type="I" start="4">
 <li>First item</li>
 <li>Second item</li>
 <li>Third item</li>
@@ -658,6 +725,81 @@ C. foofoo C
 </ol>
 </li>
 <li>foo 3</li>
+</ol>`},
+	{
+		desc: "A paragraph between lists creates two separate lists and hashes are consider numeric here",
+		md: `1. First item
+2. Second item
+
+Some text here.
+
+#. Third item (continues from 3)
+#. Fourth item (continues from 4)`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+</ol>
+<p>Some text here.</p>
+<ol class="fancy fl-num" type="1" start="1">
+<li>Third item (continues from 3)</li>
+<li>Fourth item (continues from 4)</li>
+</ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists`n (number, lcalpha and ucalpha)",
+		md: `1. Numeric item
+2. Another numeric item
+a. This starts a new alphabetic list
+b. Continues the alphabetic list
+A. This starts a new uppercase alpha list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>This starts a new uppercase alpha list</li>
+</ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcalpha and lcroman)",
+		md: `1. Numeric item
+2. Another numeric item
+a. This starts a new alphabetic list
+b. Continues the alphabetic list
+i. This starts a new lowercase roman list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+<ol class="fancy fl-lcroman" type="i" start="1">
+<li>This starts a new lowercase roman list</li>
+</ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcalpha and ucroman)",
+		md: `1. Numeric item
+2. Another numeric item
+a. This starts a new alphabetic list
+b. Continues the alphabetic list
+I. This starts a new uppercase roman list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+<ol class="fancy fl-ucroman" type="I" start="1">
+<li>This starts a new uppercase roman list</li>
 </ol>`},
 }
 
