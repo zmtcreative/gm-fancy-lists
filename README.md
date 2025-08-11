@@ -55,7 +55,6 @@ b. Second alphabetic item
 
 i. First roman numeral
 ii. Second roman numeral
-
 #. Continue previous numbering
 #. Another continuation
 `
@@ -70,6 +69,9 @@ ii. Second roman numeral
 ```
 
 ## Supported List Types
+
+This section provides a more detailed explanation of what this extension provides and its limitations. Please
+read it carefully to make sure you understand the syntax changes and the likely results.
 
 ### Numeric Lists
 
@@ -227,7 +229,41 @@ I. This starts a new roman list
 
 This generates three separate `<ol>` elements with different `type` attributes and CSS classes:
 
+```html
+<ol class="fancy fl-num" type="1" start="1">
+   <li>Numeric item</li>
+   <li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+   <li>This starts a new alphabetic list</li>
+   <li>Continues the alphabetic list</li>
+</ol>
+<ol class="fancy fl-ucroman" type="I" start="1">
+   <li>This starts a new uppercase roman list</li>
+</ol>
+```
 
+> [!TIP]
+> **Don't use this feature if you can avoid it!**
+>
+> It is better to separate new ordered lists with a blank line. Depending on this list-type change
+> feature instead of following general Commonmark list handling can lead to strange bugs in the way
+> your Markdown is parsed, especially with roman numerals.
+>
+> This feature is here to (_mostly_) match the Pandoc-style handling, but it is **NOT** a perfect
+> match and thus should be avoided if possible in your Markdown files.
+
+### Exception With Same-Case Roman Numerals
+
+You **CANNOT** make a list-type change if your current list type is lowercase alphabetic and you
+use a lowercase `i` to indicate changing to a new lowercase roman numeral ordered list. The parser will ignore this
+and treat the `i` as just another letter identifier in the current list. The same is true in reverse --
+if you are in an uppercase alphabetic list and you use an uppercase `I` expecting to start a new
+uppercase roman numeral list, the uppercase `I` will be treated as just another uppercase letter
+identifier in the current list.
+
+If you use an uppercase `I` in a current lowercase letter ordered list (and the inverse), the parser
+**WILL** detect the case change and make the transition to the new roman numeral list.
 
 ## Dependencies
 
