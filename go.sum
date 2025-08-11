@@ -1,4 +1,6 @@
 github.com/brandenc40/romannumeral v1.1.5 h1:X9vvg5iJATxGzs0u4p1StxlFixPdDcHT44eBv4T5kRk=
 github.com/brandenc40/romannumeral v1.1.5/go.mod h1:BGaddAnc6x74z0muZeTu0Z+OMhQXfd8U76vkSLIPvxk=
+github.com/mdigger/goldmark-attributes v0.0.0-20250724115859-bd3108091530 h1:PtnMRIkeWQi6FgIdfI1mtm+cMX1g1KVs+0NuJYeT8Tw=
+github.com/mdigger/goldmark-attributes v0.0.0-20250724115859-bd3108091530/go.mod h1:Df2jMu8JhRCOgI3hp7CU8Y8Rjw+uaOySYtZk+P6+Vj0=
 github.com/yuin/goldmark v1.7.13 h1:GPddIs617DnBLFFVJFgpo1aBfe/4xcvMc3SB5t/D0pA=
 github.com/yuin/goldmark v1.7.13/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=

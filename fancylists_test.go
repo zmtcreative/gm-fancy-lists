@@ -1,9 +1,13 @@
 package fancylists
 
 import (
+	"fmt"
 	"testing"
 
+	blockattr "github.com/mdigger/goldmark-attributes"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/testutil"
 )
 
@@ -861,6 +865,7 @@ b. Continues the alphabetic list
 }
 
 func TestFancyLists(t *testing.T) {
+	fmt.Println("    Running Basic FancyLists tests...")
 	for i, c := range cases {
 		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 			No:          i,
@@ -869,4 +874,32 @@ func TestFancyLists(t *testing.T) {
 			Expected:    c.html,
 		}, t)
 	}
+}
+
+// CreateGoldmarkInstance creates and configures a new Goldmark instance.
+func CreateGoldmarkInstance(blockAttributes bool) goldmark.Markdown {
+    // myIcons := InitAlertIcons() // Initialize alert icons
+    options := []goldmark.Option{
+        // blockattr.Enable,
+        // bracketedspan.Enable,
+        goldmark.WithParserOptions(
+            parser.WithAutoHeadingID(), // Automatically generate IDs for headings
+            parser.WithAttribute(),      // Enable attributes for nodes
+        ),
+        goldmark.WithExtensions(
+            extension.GFM,
+            extension.DefinitionList,
+            extension.Footnote,
+            extension.Typographer,
+			&FancyLists{},
+        ),
+    }
+
+	if blockAttributes {
+		options = append(options,
+			blockattr.Enable,
+		)
+	}
+
+    return goldmark.New(options...)
 }
