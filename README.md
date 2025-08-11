@@ -1,3 +1,3 @@
-# gm-fancy-lists
+# Goldmark Extension for Pandoc-style Fancy Lists
 
-Extension for Goldmark to provide Pandoc-style fancy_lists
+This is an extension for Goldmark to provide Pandoc-style Fancy Lists.
