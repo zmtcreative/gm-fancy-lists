@@ -42,7 +42,7 @@ var attr_cases = [...]TestCaseAttributes{
 3. Third item
 {.sbs}
 `,
-		html: `<ol class="fancy fl-num sbs" type="1" value="1">
+		html: `<ol class="fancy fl-num sbs" type="1" start="1">
 <li>First item</li>
 <li>Second item</li>
 <li>Third item</li>
@@ -66,7 +66,7 @@ var attr_cases = [...]TestCaseAttributes{
 3. Third item
 {.foo}
 `,
-		html: `<ol class="fancy fl-num foo" type="1" value="1">
+		html: `<ol class="fancy fl-num foo" type="1" start="1">
 <li>First item</li>
 <li>Second item</li>
 <li>Third item</li>
@@ -90,7 +90,7 @@ var attr_cases = [...]TestCaseAttributes{
 3. Third item
 {.foo bar="baz"}
 `,
-		html: `<ol class="fancy fl-num foo" type="1" value="1" bar="baz">
+		html: `<ol class="fancy fl-num foo" type="1" start="1" bar="baz">
 <li>First item</li>
 <li>Second item</li>
 <li>Third item</li>
