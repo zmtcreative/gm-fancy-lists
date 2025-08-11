@@ -769,7 +769,7 @@ A. This starts a new uppercase alpha list
 2. Another numeric item
 a. This starts a new alphabetic list
 b. Continues the alphabetic list
-i. This starts a new lowercase roman list
+i. This continues the lowercase alphabetic list
 `,
 		html: `<ol class="fancy fl-num" type="1" start="1">
 <li>Numeric item</li>
@@ -778,10 +778,28 @@ i. This starts a new lowercase roman list
 <ol class="fancy fl-lcalpha" type="a" start="1">
 <li>This starts a new alphabetic list</li>
 <li>Continues the alphabetic list</li>
+<li>This continues the lowercase alphabetic list</li>
+</ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcroman and lcalpha)",
+		md: `1. Numeric item
+2. Another numeric item
+i. This starts a new lowercase roman list
+a. This starts a new alphabetic list
+b. Continues the alphabetic list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
 </ol>
 <ol class="fancy fl-lcroman" type="i" start="1">
 <li>This starts a new lowercase roman list</li>
-</ol>`},
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+`},
 	{
 		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcalpha and ucroman)",
 		md: `1. Numeric item
@@ -801,6 +819,45 @@ I. This starts a new uppercase roman list
 <ol class="fancy fl-ucroman" type="I" start="1">
 <li>This starts a new uppercase roman list</li>
 </ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists `n (number, ucalpha and lcroman)",
+		md: `1. Numeric item
+2. Another numeric item
+A. This starts a new alphabetic list
+B. Continues the alphabetic list
+i. This starts a new lowercase roman list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+<ol class="fancy fl-lcroman" type="i" start="1">
+<li>This starts a new lowercase roman list</li>
+</ol>`},
+	{
+		desc: "A mixed list with different types that should create three separate ordered lists `n (number, ucroman and lcalpha)",
+		md: `1. Numeric item
+2. Another numeric item
+I. This starts a new uppercase roman list
+a. This starts a new alphabetic list
+b. Continues the alphabetic list
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>Numeric item</li>
+<li>Another numeric item</li>
+</ol>
+<ol class="fancy fl-ucroman" type="I" start="1">
+<li>This starts a new uppercase roman list</li>
+</ol>
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>This starts a new alphabetic list</li>
+<li>Continues the alphabetic list</li>
+</ol>
+`},
 }
 
 func TestFancyLists(t *testing.T) {
