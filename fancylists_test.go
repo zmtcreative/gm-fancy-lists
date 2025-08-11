@@ -501,7 +501,21 @@ foo
 baz</li>
 </ul>`},
 	{
-		desc: "A full Fancylist Test",
+		desc: "A Basic Fancylist OrderedList Test",
+		md: `1. foo 1
+#. foo 2
+A. bar A
+#. bar B`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>foo 1</li>
+<li>foo 2</li>
+</ol>
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>bar A</li>
+<li>bar B</li>
+</ol>`},
+	{
+		desc: "A full Fancylist Mixed List Test",
 		md: `1. foo 1
 2. foo 2
    i. bar roman 'i'
