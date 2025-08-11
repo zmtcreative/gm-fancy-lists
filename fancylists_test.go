@@ -26,10 +26,10 @@ var cases = [...]TestCase{
 2. Second item
 3. Third item
 `,
-		html: `<ol class="fancy fl-num" type="1">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with same number",
@@ -37,10 +37,10 @@ var cases = [...]TestCase{
 1. Second item
 1. Third item
 `,
-		html: `<ol class="fancy fl-num" type="1">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with number and hash",
@@ -48,10 +48,10 @@ var cases = [...]TestCase{
 #. Second item
 #. Third item
 `,
-		html: `<ol class="fancy fl-num" type="1">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with letters (lowercase)",
@@ -59,10 +59,10 @@ var cases = [...]TestCase{
 b. Second item
 c. Third item
 `,
-		html: `<ol class="fancy fl-lcalpha" type="a">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with same letter (lowercase)",
@@ -70,10 +70,10 @@ c. Third item
 a. Second item
 a. Third item
 `,
-		html: `<ol class="fancy fl-lcalpha" type="a">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with letter and hash (lowercase)",
@@ -81,10 +81,10 @@ a. Third item
 #. Second item
 #. Third item
 `,
-		html: `<ol class="fancy fl-lcalpha" type="a">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with letter and hash (uppercase)",
@@ -92,10 +92,10 @@ a. Third item
 #. Second item
 #. Third item
 `,
-		html: `<ol class="fancy fl-ucalpha" type="A">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with roman numeral (lowercase)",
@@ -103,10 +103,21 @@ a. Third item
 ii. Second item
 iii. Third item
 `,
-		html: `<ol class="fancy fl-lcroman" type="i">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-lcroman" type="i" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "Ordered List with roman numeral NOT beginning with 'i' (treated as alphabetic)",
+		md:   `vi. First item
+vii. Second item
+#. Third item
+`,
+		html: `<ol class="fancy fl-lcalpha" type="a" start="581">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Simple Ordered List with roman numeral (uppercase)",
@@ -114,10 +125,10 @@ iii. Third item
 II. Second item
 III. Third item
 `,
-		html: `<ol class="fancy fl-ucroman" type="I">
-<li value="1">First item</li>
-<li value="2">Second item</li>
-<li value="3">Third item</li>
+		html: `<ol class="fancy fl-ucroman" type="I" start="2">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Ordered List with numbers starting at 8",
@@ -125,10 +136,10 @@ III. Third item
 9. Second item
 10. Third item
 `,
-		html: `<ol class="fancy fl-num" type="1">
-<li value="8">First item</li>
-<li value="9">Second item</li>
-<li value="10">Third item</li>
+		html: `<ol class="fancy fl-num" type="1" start="8">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Ordered List with letters starting at g (lowercase)",
@@ -136,10 +147,10 @@ III. Third item
 h. Second item
 i. Third item
 `,
-		html: `<ol class="fancy fl-lcalpha" type="a">
-<li value="7">First item</li>
-<li value="8">Second item</li>
-<li value="9">Third item</li>
+		html: `<ol class="fancy fl-lcalpha" type="a" start="7">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
 </ol>`},
 	{
 		desc: "Ordered List two levels",
@@ -149,26 +160,26 @@ i. Third item
    A. Subitem 2.2
    #. Subitem 2.3
 #. Third item
-   i. Subitem 3.1
-   i. Subitem 3.2
+   ii. Subitem 3.1
+   #. Subitem 3.2
 #. Fourth item
 `,
-		html: `<ol class="fancy fl-num" type="1">
-<li value="1">First item</li>
-<li value="2">Second item
-<ol class="fancy fl-ucalpha" type="A">
-<li value="1">Subitem 2.1</li>
-<li value="2">Subitem 2.2</li>
-<li value="3">Subitem 2.3</li>
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>Subitem 2.1</li>
+<li>Subitem 2.2</li>
+<li>Subitem 2.3</li>
 </ol>
 </li>
-<li value="3">Third item
-<ol class="fancy fl-lcroman" type="i">
-<li value="1">Subitem 3.1</li>
-<li value="2">Subitem 3.2</li>
+<li>Third item
+<ol class="fancy fl-lcroman" type="i" start="2">
+<li>Subitem 3.1</li>
+<li>Subitem 3.2</li>
 </ol>
 </li>
-<li value="4">Fourth item</li>
+<li>Fourth item</li>
 </ol>`},
 }
 
