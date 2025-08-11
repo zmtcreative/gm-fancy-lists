@@ -168,6 +168,43 @@ func lastOffset(node ast.Node) int {
 }
 
 // Helper functions for converting alphabetic and roman numeral markers to numbers
+
+// getListTypeFromMarker determines what type and attributes a list should have based on its first marker
+func getListTypeFromMarker(markerBytes []byte, typ listItemType) (string, string) {
+	marker := string(markerBytes)
+
+	if typ == orderedList {
+		return "1", "fl-num"
+	}
+
+	if typ == orderedListFancy {
+		if marker == "#" {
+			// For '#' marker, we default to numeric unless context suggests otherwise
+			return "1", "fl-num"
+		} else if len(marker) > 0 {
+			// Check if it's a roman numeral first (must start with 'i' or 'I')
+			if marker[0] == 'i' || marker[0] == 'I' {
+				if _, ok := romanToNumber(marker); ok {
+					if unicode.IsLower(rune(marker[0])) {
+						return "i", "fl-lcroman"
+					} else {
+						return "I", "fl-ucroman"
+					}
+				}
+			}
+			// Otherwise it's alphabetic
+			if unicode.IsLower(rune(marker[0])) {
+				return "a", "fl-lcalpha"
+			} else {
+				return "A", "fl-ucalpha"
+			}
+		}
+	}
+
+	// Default fallback
+	return "1", "fl-num"
+}
+
 func alphabeticToNumber(s string) int {
 	if len(s) == 0 {
 		return 0
@@ -344,9 +381,60 @@ func (b *fancyListParser) Continue(node ast.Node, reader text.Reader, pc parser.
 			match, typ := matchesListItem(line, false)
 			if typ != notList && match[1]-offset < 4 {
 				marker := line[match[3]-1]
+
+				// Check if the list can continue with this marker type
 				if !list.CanContinue(marker, typ == orderedList || typ == orderedListFancy) {
 					return parser.Close
 				}
+
+				// For ordered lists, check if the type has changed
+				if typ == orderedList || typ == orderedListFancy {
+					markerBytes := line[match[2] : match[3]-1]
+					markerStr := string(markerBytes)
+
+					// If it's a '#' marker, it should continue the current list type
+					if markerStr != "#" {
+						// Get current list type
+						currentType := "1" // default
+						if currentTypeAttr, ok := list.AttributeString("type"); ok {
+							if typeBytes, ok := currentTypeAttr.([]byte); ok {
+								currentType = string(typeBytes)
+							} else if typeStr, ok := currentTypeAttr.(string); ok {
+								currentType = typeStr
+							}
+						}
+
+						// For specific markers (non-#), determine expected type with context awareness
+						var expectedType string
+
+						// Handle the ambiguous case of 'i'/'I'
+						if len(markerStr) == 1 && (markerStr == "i" || markerStr == "I") {
+							// If current list is alphabetic, treat 'i'/'I' as alphabetic
+							// If current list is numeric or roman, treat 'i'/'I' as roman
+							if currentType == "a" || currentType == "A" {
+								// Continue as alphabetic
+								expectedType = currentType
+							} else {
+								// Treat as roman numeral
+								if markerStr == "i" {
+									expectedType = "i"
+								} else {
+									expectedType = "I"
+								}
+							}
+						} else {
+							// For non-ambiguous cases, use normal logic
+							expectedType, _ = getListTypeFromMarker(markerBytes, typ)
+						}
+
+						// If types don't match, close this list to start a new one
+						if expectedType != currentType {
+							return parser.Close
+						}
+					}
+					// If it's '#', continue with current list type (no type change)
+				}
+
 				return parser.Continue | parser.HasChildren
 			}
 		}
