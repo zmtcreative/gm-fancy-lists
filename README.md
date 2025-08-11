@@ -247,7 +247,7 @@ This generates three separate `<ol>` elements with different `type` attributes a
 > **Don't use this feature if you can avoid it!**
 >
 > **It is better to separate new ordered lists with a blank line.** Depending on this list-type change
-> feature parsing correctly, instead of following general Commonmark list handling syntax, can lead to
+> feature parsing correctly, instead of following general CommonMark list handling syntax, can lead to
 > strange bugs in the way your Markdown is parsed, especially with roman numerals.
 >
 > This feature is here to (_mostly_) match the Pandoc-style handling, but it is **NOT** a perfect
