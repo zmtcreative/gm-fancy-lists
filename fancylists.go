@@ -614,13 +614,13 @@ func (b *fancyListParser) Continue(node ast.Node, reader text.Reader, pc parser.
 
 						// Handle the ambiguous case of 'i'/'I'
 						if len(markerStr) == 1 && (markerStr == "i" || markerStr == "I") {
-							// If current list is alphabetic, treat 'i'/'I' as alphabetic
-							// If current list is numeric or roman, treat 'i'/'I' as roman
-							if currentType == "a" || currentType == "A" {
-								// Continue as alphabetic
+							// If current list is alphabetic AND same case, treat 'i'/'I' as alphabetic
+							// If current list is different case alphabetic, numeric, or roman, treat 'i'/'I' as roman
+							if (currentType == "a" && markerStr == "i") || (currentType == "A" && markerStr == "I") {
+								// Same case alphabetic - continue as alphabetic
 								expectedType = currentType
 							} else {
-								// Treat as roman numeral
+								// Different case, numeric, or roman - treat as roman numeral
 								if markerStr == "i" {
 									expectedType = "i"
 								} else {
