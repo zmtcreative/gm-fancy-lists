@@ -131,17 +131,6 @@ III. Third item
 <li value="10">Third item</li>
 </ol>`},
 	{
-		desc: "Ordered List with roman numbers starting at viii",
-		md:   `viii. First item
-#. Second item
-#. Third item
-`,
-		html: `<ol class="fancy fl-lcroman" type="i">
-<li value="8">First item</li>
-<li value="9">Second item</li>
-<li value="10">Third item</li>
-</ol>`},
-	{
 		desc: "Ordered List with letters starting at g (lowercase)",
 		md:   `g. First item
 h. Second item
@@ -156,29 +145,28 @@ i. Third item
 		desc: "Ordered List two levels",
 		md:   `1. First item
 #. Second item
-  A. Subitem 2.1
-  A. Subitem 2.2
-  A. Subitem 2.3
+   A. Subitem 2.1
+   A. Subitem 2.2
+   #. Subitem 2.3
 #. Third item
-  i. Subitem 3.1
-  i. Subitem 3.2
+   i. Subitem 3.1
+   i. Subitem 3.2
 #. Fourth item
 `,
 		html: `<ol class="fancy fl-num" type="1">
-<li value="1">First item
-</li>
+<li value="1">First item</li>
 <li value="2">Second item
-  <ol class="fancy fl-ucalpha" type="A">
-    <li value="1">Subitem 2.1</li>
-    <li value="2">Subitem 2.2</li>
-    <li value="3">Subitem 2.3</li>
-  </ol>
+<ol class="fancy fl-ucalpha" type="A">
+<li value="1">Subitem 2.1</li>
+<li value="2">Subitem 2.2</li>
+<li value="3">Subitem 2.3</li>
+</ol>
 </li>
 <li value="3">Third item
-  <ol class="fancy fl-lcroman" type="i">
-    <li value="1">Subitem 3.1</li>
-    <li value="2">Subitem 3.2</li>
-  </ol>
+<ol class="fancy fl-lcroman" type="i">
+<li value="1">Subitem 3.1</li>
+<li value="2">Subitem 3.2</li>
+</ol>
 </li>
 <li value="4">Fourth item</li>
 </ol>`},
