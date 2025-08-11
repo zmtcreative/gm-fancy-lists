@@ -208,9 +208,12 @@ func romanToNumber(s string) (int, bool) {
 		return 0, false
 	}
 
+	// Only support roman numerals starting with 'i' (case insensitive)
+	// This means: i, ii, iii, iv (lowercase) or I, II, III, IV (uppercase)
+	// But NOT: vi, vii, etc. (those are treated as alphabetic)
 	first := strings.ToLower(s)[0]
 	if first != 'i' {
-		return 0, false // Only support roman numerals starting with 'i' (case insensitive)
+		return 0, false
 	}
 
 	// Convert to uppercase for parsing since romannumeral library expects uppercase
@@ -294,12 +297,15 @@ func (b *fancyListParser) Open(parent ast.Node, reader text.Reader, pc parser.Co
 	}
 
 	if ast.IsParagraph(last) && last.Parent() == parent {
-		// we allow only lists starting with 1 to interrupt paragraphs.
-		if typ == orderedList && start != 1 {
-			return nil, parser.NoChildren
-		}
-		if typ == orderedListFancy && start != 1 {
-			return nil, parser.NoChildren
+		// we allow only lists starting with 1 to interrupt paragraphs,
+		// but this restriction doesn't apply to nested lists (inside list items)
+		if _, isListItem := parent.(*ast.ListItem); !isListItem {
+			if typ == orderedList && start != 1 {
+				return nil, parser.NoChildren
+			}
+			if typ == orderedListFancy && start != 1 {
+				return nil, parser.NoChildren
+			}
 		}
 		//an empty list item cannot interrupt a paragraph:
 		if match[4] < 0 || util.IsBlank(line[match[4]:match[5]]) {
@@ -563,8 +569,13 @@ func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node
 			}
 
 			if n.Start != 1 {
-				// Note: We don't add start attribute as per test expectations
-				// The individual li elements have value attributes instead
+				// Add start attribute to the ol element
+				_, _ = w.WriteString(` start="`)
+				_, _ = w.WriteString(strconv.Itoa(n.Start))
+				_ = w.WriteByte('"')
+			} else {
+				// Always add start="1" for consistency
+				_, _ = w.WriteString(` start="1"`)
 			}
 		}
 
@@ -588,22 +599,7 @@ func (r *fancyListItemHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncR
 func (r *fancyListItemHTMLRenderer) renderListItem(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		_, _ = w.WriteString("<li")
-		if valueAttr, ok := n.AttributeString("value"); ok {
-			_, _ = w.WriteString(` value="`)
-			valueBytes, ok := valueAttr.([]byte)
-			if !ok {
-				// Handle other types (string, int)
-				if valueStr, ok := valueAttr.(string); ok {
-					valueBytes = []byte(valueStr)
-				} else if valueInt, ok := valueAttr.(int); ok {
-					valueBytes = []byte(strconv.Itoa(valueInt))
-				}
-			}
-			if valueBytes != nil {
-				_, _ = w.Write(valueBytes)
-			}
-			_ = w.WriteByte('"')
-		}
+		// No value attribute - the start attribute on the parent ol handles numbering
 		_ = w.WriteByte('>')
 
 		fc := n.FirstChild()
