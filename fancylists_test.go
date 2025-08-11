@@ -1,9 +1,9 @@
 package fancylists
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/fatih/color"
 	blockattr "github.com/mdigger/goldmark-attributes"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -11,11 +11,21 @@ import (
 	"github.com/yuin/goldmark/testutil"
 )
 
-var markdown = goldmark.New(
-	goldmark.WithExtensions(
-		&FancyLists{},
-	),
-)
+// var markdown = goldmark.New(
+// 	goldmark.WithExtensions(
+// 		&FancyLists{},
+// 	),
+// )
+
+var markdown = CreateGoldmarkInstance(createOptions{
+	blockAttributes: false,
+	enableGFM:       false,
+})
+
+var mdGFM = CreateGoldmarkInstance(createOptions{
+	blockAttributes: false,
+	enableGFM:       true,
+})
 
 type TestCase struct {
 	desc string
@@ -59,7 +69,7 @@ var cases = [...]TestCase{
 </ul>
 <p>foo</p>`},
 	{
-		desc: "Unordered list starting with one blank line, and`n  both indented and fenced code blocks",
+		desc: "Unordered list starting with one blank line, and\n  both indented and fenced code blocks",
 		md:   `-
   foo
 -
@@ -537,7 +547,7 @@ foo
 <li>boo</li>
 </ul>`},
 	{
-		desc: "Unordered List inside Ordered List `n  - indents must account for parent list item indent",
+		desc: "Unordered List inside Ordered List \n  - indents must account for parent list item indent",
 		md: `10) foo
     - bar`,
 		html: `<ol class="fancy fl-num" type="1" start="10">
@@ -548,7 +558,7 @@ foo
 </li>
 </ol>`},
 	{
-		desc: "Unordered List inside Ordered List `n  - indents must account for parent list item indent `n  - three is not enough here",
+		desc: "Unordered List inside Ordered List \n  - indents must account for parent list item indent \n  - three is not enough here",
 		md: `10) foo
    - bar`,
 		html: `<ol class="fancy fl-num" type="1" start="10">
@@ -749,7 +759,7 @@ Some text here.
 <li>Fourth item (continues from 4)</li>
 </ol>`},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists`n (number, lcalpha and ucalpha)",
+		desc: "A mixed list with different types that should create three separate ordered lists\n (number, lcalpha and ucalpha)",
 		md: `1. Numeric item
 2. Another numeric item
 a. This starts a new alphabetic list
@@ -768,7 +778,7 @@ A. This starts a new uppercase alpha list
 <li>This starts a new uppercase alpha list</li>
 </ol>`},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcalpha and lcroman)",
+		desc: "A mixed list with different types that should create three separate ordered lists \n (number, lcalpha and lcroman)",
 		md: `1. Numeric item
 2. Another numeric item
 a. This starts a new alphabetic list
@@ -785,7 +795,7 @@ i. This continues the lowercase alphabetic list
 <li>This continues the lowercase alphabetic list</li>
 </ol>`},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcroman and lcalpha)",
+		desc: "A mixed list with different types that should create three separate ordered lists \n (number, lcroman and lcalpha)",
 		md: `1. Numeric item
 2. Another numeric item
 i. This starts a new lowercase roman list
@@ -805,7 +815,7 @@ b. Continues the alphabetic list
 </ol>
 `},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists `n (number, lcalpha and ucroman)",
+		desc: "A mixed list with different types that should create three separate ordered lists \n (number, lcalpha and ucroman)",
 		md: `1. Numeric item
 2. Another numeric item
 a. This starts a new alphabetic list
@@ -824,7 +834,7 @@ I. This starts a new uppercase roman list
 <li>This starts a new uppercase roman list</li>
 </ol>`},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists `n (number, ucalpha and lcroman)",
+		desc: "A mixed list with different types that should create three separate ordered lists \n (number, ucalpha and lcroman)",
 		md: `1. Numeric item
 2. Another numeric item
 A. This starts a new alphabetic list
@@ -843,7 +853,7 @@ i. This starts a new lowercase roman list
 <li>This starts a new lowercase roman list</li>
 </ol>`},
 	{
-		desc: "A mixed list with different types that should create three separate ordered lists `n (number, ucroman and lcalpha)",
+		desc: "A mixed list with different types that should create three separate ordered lists \n (number, ucroman and lcalpha)",
 		md: `1. Numeric item
 2. Another numeric item
 I. This starts a new uppercase roman list
@@ -865,7 +875,7 @@ b. Continues the alphabetic list
 }
 
 func TestFancyLists(t *testing.T) {
-	fmt.Println("    Running Basic FancyLists tests...")
+	color.Cyan("  + Running Basic FancyLists tests\n      (all Goldmark Extensions disabled)...\n")
 	for i, c := range cases {
 		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
 			No:          i,
@@ -876,28 +886,56 @@ func TestFancyLists(t *testing.T) {
 	}
 }
 
+func TestFancyListsGFM(t *testing.T) {
+	color.Green("  + Running Basic (same) FancyLists tests \n      with GFM and PHP Markdown Extensions enabled...\n")
+	for i, c := range cases {
+		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+			No:          i,
+			Description: c.desc,
+			Markdown:    c.md,
+			Expected:    c.html,
+		}, t)
+	}
+}
+
+type createOptions struct {
+	blockAttributes bool
+	enableGFM       bool
+}
+
 // CreateGoldmarkInstance creates and configures a new Goldmark instance.
-func CreateGoldmarkInstance(blockAttributes bool) goldmark.Markdown {
-    // myIcons := InitAlertIcons() // Initialize alert icons
+// The options parameter allows for customization of the instance.
+func CreateGoldmarkInstance(opt createOptions) goldmark.Markdown {
+	// Initialize a new Goldmark instance with default options for testing fancylists.
     options := []goldmark.Option{
-        // blockattr.Enable,
-        // bracketedspan.Enable,
-        goldmark.WithParserOptions(
-            parser.WithAutoHeadingID(), // Automatically generate IDs for headings
-            parser.WithAttribute(),      // Enable attributes for nodes
-        ),
+        goldmark.WithParserOptions(),
         goldmark.WithExtensions(
-            extension.GFM,
-            extension.DefinitionList,
-            extension.Footnote,
-            extension.Typographer,
 			&FancyLists{},
         ),
     }
 
-	if blockAttributes {
+	// Enable GitHub Flavored Markdown (GFM) extensions if requested.
+	// Also enables PHP Markdown Definition List and Footnote extensions.
+	if opt.enableGFM {
+		options = append(options,
+			goldmark.WithExtensions(
+				extension.GFM,
+				extension.DefinitionList,
+				extension.Footnote,
+				// extension.Typographer,
+			),
+		)
+	}
+
+	// Enable github.com/mdigger/goldmark-attributes if requested.
+	// currently used by fancylistsattributes_test.go
+	if opt.blockAttributes {
 		options = append(options,
 			blockattr.Enable,
+			goldmark.WithParserOptions(
+	            parser.WithAutoHeadingID(), // Automatically generate IDs for headings
+				parser.WithAttribute(),
+			),
 		)
 	}
 

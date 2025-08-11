@@ -1,13 +1,16 @@
 package fancylists
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/fatih/color"
 	"github.com/yuin/goldmark/testutil"
 )
 
-var mdattr = CreateGoldmarkInstance(true)
+var mdattr = CreateGoldmarkInstance(createOptions{
+	blockAttributes: true,
+	enableGFM:       true,
+})
 
 type TestCaseAttributes struct {
 	desc string
@@ -95,10 +98,62 @@ var attr_cases = [...]TestCaseAttributes{
 <li>Second item</li>
 <li>Third item</li>
 </ol>`},
+	{
+		desc: "ATTR: Multi-Level Unordered List with {.foo} class attribute on level 1 and {.bar} class attribute on level 2",
+		md:   `- First item
+- Second item
+  + Subitem one
+  + Subitem two
+    * Subsubitem one
+	* Subsubitem two
+  + Subitem three
+  + Subitem four
+  {.baz}
+- Third item
+{.foo}
+`,
+		html: `<ul class="foo">
+<li>First item</li>
+<li>Second item
+<ul class="baz">
+<li>Subitem one</li>
+<li>Subitem two
+<ul>
+<li>Subsubitem one</li>
+<li>Subsubitem two</li>
+</ul>
+</li>
+<li>Subitem three</li>
+<li>Subitem four</li>
+</ul>
+</li>
+<li>Third item</li>
+</ul>`},
+	{
+		desc: "ATTR: Multi-Level Ordered List with {.foo} class attribute on level 1 and {.baz} class attribute on level 2",
+		md:   `1. First item
+2. Second item
+   1. Subitem one
+   2. Subitem two
+   {.baz}
+3. Third item
+{.foo}
+`,
+		html: `<ol class="fancy fl-num foo" type="1" start="1">
+<li>First item</li>
+<li>Second item
+<ol class="fancy fl-num baz" type="1" start="1">
+<li>Subitem one</li>
+<li>Subitem two</li>
+</ol>
+</li>
+<li>Third item</li>
+</ol>
+`},
 }
 
 func TestFancyListsAttributes(t *testing.T) {
-	fmt.Println("    Running FancyLists attributes tests...")
+	color.HiCyan("  + Running more FancyLists tests with goldmark-attributes enabled and \n      with GFM and PHP Markdown Extensions enabled...\n")
 	for i, c := range attr_cases {
 		testutil.DoTestCase(mdattr, testutil.MarkdownTestCase{
 			No:          i,
