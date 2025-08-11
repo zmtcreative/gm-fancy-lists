@@ -110,11 +110,11 @@ i. Second roman numeral item
 i. Third roman numeral item
 ```
 
-### Hash `#` Continuation Character
+### Hash `#.` Continuation Character
 
-As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with a number, letter (or the `i/I` letter when starting a roman numeral ordered list), you can use the `#` to mark all subsequent items at that list level. The use of the `#` continuation character is optional for number and letter ordered lists.
+As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with a number, letter (or the `i/I` letter when starting a roman numeral ordered list), you can use the `#.` to mark all subsequent items at that list level. The use of the `#.` continuation character is optional for number and letter ordered lists.
 
-However, as noted in the following section [Roman Numeral Lists](#roman-numeral-lists), if you are starting a roman numeral ordered list (using `i/I`, `ii/II` `iii/III` or `iv/IV` to start the list), you **MUST** use the `#` continuation character for any subsequent list identifiers that don't begin with `i` (or `I`). Otherwise you will get
+However, as noted in the following section [Roman Numeral Lists](#roman-numeral-lists), if you are starting a roman numeral ordered list (using `i/I`, `ii/II` `iii/III` or `iv/IV` to start the list), you **MUST** use the `#.` continuation character for any subsequent list identifiers that don't begin with `i` (or `I`). Otherwise you will get
 unexpected results.
 
 ### Roman Numeral Lists
@@ -246,14 +246,14 @@ This generates three separate `<ol>` elements with different `type` attributes a
 > [!TIP]
 > **Don't use this feature if you can avoid it!**
 >
-> It is better to separate new ordered lists with a blank line. Depending on this list-type change
-> feature instead of following general Commonmark list handling can lead to strange bugs in the way
-> your Markdown is parsed, especially with roman numerals.
+> **It is better to separate new ordered lists with a blank line.** Depending on this list-type change
+> feature parsing correctly, instead of following general Commonmark list handling syntax, can lead to
+> strange bugs in the way your Markdown is parsed, especially with roman numerals.
 >
 > This feature is here to (_mostly_) match the Pandoc-style handling, but it is **NOT** a perfect
 > match and thus should be avoided if possible in your Markdown files.
 
-### Exception With Same-Case Roman Numerals
+### Special Considerations for Type Changes with Roman Numerals
 
 You **CANNOT** make a list-type change if your current list type is lowercase alphabetic and you
 use a lowercase `i` to indicate changing to a new lowercase roman numeral ordered list. The parser will ignore this
@@ -264,6 +264,9 @@ identifier in the current list.
 
 If you use an uppercase `I` in a current lowercase letter ordered list (and the inverse), the parser
 **WILL** detect the case change and make the transition to the new roman numeral list.
+
+If you place an uppercase or lowercase `i/I` roman numeral in an existing number ordered list, the
+parser will correctly transition to the new roman numeral list.
 
 ## Dependencies
 
