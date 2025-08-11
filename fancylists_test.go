@@ -515,6 +515,54 @@ A. bar A
 <li>bar B</li>
 </ol>`},
 	{
+		desc: "A Multilevel Fancylist OrderedList Test",
+		md: `1. foo 1
+#. foo 2
+   a. baz 'a'
+   b. baz 'b'
+   A. boo 'A'
+   B. boo 'B'
+#. foo 3
+A. bar A
+A. bar B
+   iii. boo 'iii'
+   #.   boo 'iv'
+   #.   boo 'v'
+   #.   boo 'vi'
+   I.   booboo 'I'
+   #.   booboo 'II'
+A. bar C`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>foo 1</li>
+<li>foo 2
+<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>baz 'a'</li>
+<li>baz 'b'</li>
+</ol>
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>boo 'A'</li>
+<li>boo 'B'</li>
+</ol>
+</li>
+<li>foo 3</li>
+</ol>
+<ol class="fancy fl-ucalpha" type="A" start="1">
+<li>bar A</li>
+<li>bar B
+<ol class="fancy fl-lcroman" type="i" start="3">
+<li>boo 'iii'</li>
+<li>boo 'iv'</li>
+<li>boo 'v'</li>
+<li>boo 'vi'</li>
+</ol>
+<ol class="fancy fl-ucroman" type="I" start="1">
+<li>booboo 'I'</li>
+<li>booboo 'II'</li>
+</ol>
+</li>
+<li>bar C</li>
+</ol>`},
+	{
 		desc: "A full Fancylist Mixed List Test",
 		md: `1. foo 1
 2. foo 2
