@@ -480,10 +480,11 @@ func (b *fancyListParser) Open(parent ast.Node, reader text.Reader, pc parser.Co
 	start := -1
 	var fltype *string
 
-	if typ == orderedList {
+	switch typ {
+	case orderedList:
 		number := line[match[2] : match[3]-1]
 		start, _ = strconv.Atoi(string(number))
-	} else if typ == orderedListFancy {
+	case orderedListFancy:
 		number := line[match[2] : match[3]-1]
 
 		if string(number) == "#" {
