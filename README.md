@@ -73,6 +73,22 @@ ii. Second roman numeral
 This section provides a more detailed explanation of what this extension provides and its limitations. Please
 read it carefully to make sure you understand the syntax changes and the likely results.
 
+### Bullet (Unordered List)
+
+No changes have been made to the output of bullet lists. The standard Goldmark handling of unordered lists has been
+duplicated in this extension, so unordered lists should appear as they normally would without this extension. No
+classes or other attributes are added to the `<ul>` element.
+
+```markdown
+- List item 1
+  + list item 1.1
+  + list item 1.2
+- List item 2
+- List item 3
+  * list item 3.1
+  * list item 3.2
+```
+
 ### Numeric Lists
 
 Standard numeric lists work as expected:
@@ -81,6 +97,16 @@ Standard numeric lists work as expected:
 1. First item
 2. Second item
 3. Third item
+```
+
+The common markdown syntax of simply using `1.` for all items at each level also works as it should.
+
+```markdown
+1. First item
+1. Second item
+   1. Subitem 1 of Second item
+   1. Subitem 2 of Second item
+1. Third item
 ```
 
 ### Alphabetic Lists
@@ -112,10 +138,14 @@ i. Third roman numeral item
 
 ### Hash `#.` Continuation Character
 
-As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with a number, letter (or the `i/I` letter when starting a roman numeral ordered list), you can use the `#.` to mark all subsequent items at that list level. The use of the `#.` continuation character is optional for number and letter ordered lists.
+As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with a number, letter (or the `i/I` letter when
+starting a roman numeral ordered list), you can use the `#.` to mark all subsequent items at that list level. The use
+of the `#.` continuation character is optional for number and letter ordered lists.
 
-However, as noted in the following section [Roman Numeral Lists](#roman-numeral-lists), if you are starting a roman numeral ordered list (using `i/I`, `ii/II` `iii/III` or `iv/IV` to start the list), you **MUST** use the `#.` continuation character for any subsequent list identifiers that don't begin with `i` (or `I`). Otherwise you will get
-unexpected results.
+However, as noted in the following section [Roman Numeral Lists](#roman-numeral-lists), if you are
+starting a roman numeral ordered list (using `i/I`, `ii/II` `iii/III` or `iv/IV` to start the list),
+you **MUST** use the `#.` continuation character for any subsequent list identifiers that don't begin
+with `i` (or `I`). Otherwise you will get unexpected results.
 
 ### Roman Numeral Lists
 
@@ -124,7 +154,8 @@ numbers `1-4` (i.e., `i`, `ii`, `iii` and `iv` and the uppercase equivalents) to
 roman numeral ordered list. This simplifies the parsing of lists, so we don't have to figure out if a list
 starting with a `c` is an alphabetic list (start value = `3`) or a roman numeral list (start value = `100`).
 
-It is assumed (whether you like it or not :smile:) that most people don't need to start a roman numeral ordered list with some arbitrary large roman numeral (like `MMXXV` for `2025`). This was a design decision on my part to keep
+It is assumed (whether you like it or not :smile:) that most people don't need to start a roman numeral
+ordered list with some arbitrary large roman numeral (like `MMXXV` for `2025`). This was a design decision on my part to keep
 roman numeral handling relatively simple.
 
 These are valid ordered lists using roman numerals:
@@ -188,7 +219,7 @@ Some text here.
 
 ## HTML Output
 
-The extension generates HTML with CSS classes for easy styling:
+The extension generates HTML with CSS classes for easy styling of ordered lists:
 
 - **Numeric lists**: `class="fancy fl-num"`
 - **Lowercase alphabetic**: `class="fancy fl-lcalpha"`
@@ -196,7 +227,8 @@ The extension generates HTML with CSS classes for easy styling:
 - **Lowercase roman**: `class="fancy fl-lcroman"`
 - **Uppercase roman**: `class="fancy fl-ucroman"`
 
-All ordered lists include appropriate `type` and `start` attributes. List items do not include `value` attributes, allowing the browser to handle numbering naturally.
+All ordered lists include appropriate `type` and `start` attributes. List items do not
+include `value` attributes, allowing the browser to handle numbering naturally.
 
 ## CSS Styling Example
 
@@ -214,6 +246,8 @@ ol.fancy {
     padding-left: 2em;
 }
 ```
+
+Styling using these classes is optional. The default browsers styling should be adequate for most usage.
 
 ## List Type Changes
 
