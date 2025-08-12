@@ -889,7 +889,7 @@ func TestFancyLists(t *testing.T) {
 func TestFancyListsGFM(t *testing.T) {
 	color.Green("  + Running Basic (same) FancyLists tests \n      with GFM and PHP Markdown Extensions enabled...\n")
 	for i, c := range cases {
-		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
+		testutil.DoTestCase(mdGFM, testutil.MarkdownTestCase{
 			No:          i,
 			Description: c.desc,
 			Markdown:    c.md,
