@@ -6,7 +6,6 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/ZMT-Creative/gm-fancy-lists)
 ![GitHub Tag](https://img.shields.io/github/v/tag/ZMT-Creative/gm-fancy-lists?include_prereleases&sort=semver)
 
-
 This Goldmark extension adds support for Pandoc-style "fancy lists" with extended marker types
 including alphabetic markers, roman numeral markers, and hash continuation markers.
 
@@ -291,7 +290,7 @@ This generates three separate `<ol>` elements with different `type` attributes a
 > change feature parsing correctly, instead of following general CommonMark list handling syntax,
 > can lead to strange bugs in the way your Markdown is parsed, especially with roman numerals.
 >
-> This feature is here to (_mostly_) match the Pandoc-style handling, but it is **NOT** a perfect
+> This feature is here to (*mostly*) match the Pandoc-style handling, but it is **NOT** a perfect
 > match and thus should be avoided if possible in your Markdown files.
 
 ### Special Considerations for Type Changes with Roman Numerals
