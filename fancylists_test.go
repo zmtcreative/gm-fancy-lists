@@ -11,29 +11,211 @@ import (
 	"github.com/yuin/goldmark/testutil"
 )
 
-// var markdown = goldmark.New(
-// 	goldmark.WithExtensions(
-// 		&FancyLists{},
-// 	),
-// )
-
-var markdown = CreateGoldmarkInstance(createOptions{
+// Run Basic tests with no other extensions enabled
+var mdBasic = CreateGoldmarkInstance(createOptions{
 	blockAttributes: false,
 	enableGFM:       false,
+	withOptions:     false,
 })
 
+func TestFancyListsBasic(t *testing.T) {
+	color.Cyan("  + Running Basic FancyLists tests\n      (all Goldmark Extensions disabled)...\n")
+	for i, c := range casesBasic {
+		testutil.DoTestCase(mdBasic, testutil.MarkdownTestCase{
+			No:          i,
+			Description: c.desc,
+			Markdown:    c.md,
+			Expected:    c.html,
+		}, t)
+	}
+}
+
+// Run Basic tests using FancyListsOptions{} init method
+var mdOptions = CreateGoldmarkInstance(createOptions{
+	blockAttributes: false,
+	enableGFM:       false,
+	withOptions:     true,
+})
+
+func TestFancyListsBasicUsingOptionsInit(t *testing.T) {
+	color.Green("  + Running Basic FancyLists tests using FancyListsOptions{} init method\n      (all Goldmark Extensions disabled)...\n")
+	for i, c := range casesBasic {
+		testutil.DoTestCase(mdOptions, testutil.MarkdownTestCase{
+			No:          i,
+			Description: c.desc,
+			Markdown:    c.md,
+			Expected:    c.html,
+		}, t)
+	}
+}
+
+// Run tests with GFM and PHP Markdown extensions enabled
 var mdGFM = CreateGoldmarkInstance(createOptions{
 	blockAttributes: false,
 	enableGFM:       true,
+	withOptions:     false,
 })
 
+func TestFancyListsGFM(t *testing.T) {
+	color.HiCyan("  + Running General FancyLists tests \n      with GFM and PHP Markdown Extensions enabled...\n")
+	for i, c := range casesGeneral {
+		testutil.DoTestCase(mdGFM, testutil.MarkdownTestCase{
+			No:          i,
+			Description: c.desc,
+			Markdown:    c.md,
+			Expected:    c.html,
+		}, t)
+	}
+}
+
+// Run tests with block attributes (github.com/mdigger/goldmark-attributes) enabled
+// and with GFM and PHP Markdown extensions enabled
+var mdBlockAttributes = CreateGoldmarkInstance(createOptions{
+	blockAttributes: true,
+	enableGFM:       true,
+	withOptions:     false,
+})
+
+func TestFancyListsWithBlockAttributes(t *testing.T) {
+	color.HiGreen("  + Running more FancyLists tests with goldmark-attributes enabled and \n      with GFM and PHP Markdown Extensions enabled...\n")
+	for i, c := range casesBlockAttributes {
+		testutil.DoTestCase(mdBlockAttributes, testutil.MarkdownTestCase{
+			No:          i,
+			Description: c.desc,
+			Markdown:    c.md,
+			Expected:    c.html,
+		}, t)
+	}
+}
+
+// Options structure for creating Goldmark instances
+type createOptions struct {
+	blockAttributes bool
+	enableGFM       bool
+	withOptions     bool
+}
+
+// CreateGoldmarkInstance creates and configures a new Goldmark instance.
+// The options parameter allows for customization of the instance.
+func CreateGoldmarkInstance(opt createOptions) goldmark.Markdown {
+	// Initialize a new Goldmark instance with default options for testing fancylists.
+    options := []goldmark.Option{
+        goldmark.WithParserOptions(),
+        goldmark.WithExtensions(),
+    }
+
+	if opt.withOptions {
+		options = append(options,
+			goldmark.WithExtensions(
+				&FancyListsOptions{},
+			),
+		)
+	} else {
+		options = append(options,
+			goldmark.WithExtensions(
+				FancyLists,
+			),
+		)
+	}
+
+	// Enable GitHub Flavored Markdown (GFM) extensions if requested.
+	// Also enables PHP Markdown Definition List and Footnote extensions.
+	if opt.enableGFM {
+		options = append(options,
+			goldmark.WithExtensions(
+				extension.GFM,
+				extension.DefinitionList,
+				extension.Footnote,
+				// extension.Typographer,
+			),
+		)
+	}
+
+	// Enable github.com/mdigger/goldmark-attributes if requested.
+	// currently used by fancylistsattributes_test.go
+	if opt.blockAttributes {
+		options = append(options,
+			blockattr.Enable,
+			goldmark.WithParserOptions(
+	            parser.WithAutoHeadingID(), // Automatically generate IDs for headings
+				parser.WithAttribute(),
+			),
+		)
+	}
+    return goldmark.New(options...)
+}
+
+// Create structure for test cases
 type TestCase struct {
 	desc string
 	md   string
 	html string
 }
 
-var cases = [...]TestCase{
+// Basic Test Cases
+var casesBasic = [...]TestCase{
+	{
+		desc: "Simple Unordered List with '-'",
+		md:   `- First item
+- Second item
+- Third item
+`,
+		html: `<ul>
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ul>`,
+	},
+	{
+		desc: "Simple Ordered List with numbers",
+		md:   `1. First item
+2. Second item
+3. Third item
+`,
+		html: `<ol class="fancy fl-num" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`,
+	},
+	{
+		desc: "Simple Ordered List with same roman numerals (lowercase)",
+		md:   `i. First item
+i. Second item
+i. Third item
+`,
+		html: `<ol class="fancy fl-lcroman" type="i" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`,
+	},
+	{
+		desc: "Simple Ordered List with same letters (lowercase)",
+		md:   `a. First item
+a. Second item
+a. Third item
+`,
+		html: `<ol class="fancy fl-lcalpha" type="a" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`,
+	},
+	{
+		desc: "Invalid Ordered and Unordered lists (missing space between marker and content)",
+		md:   `-one
+
+2.two`,
+		html: `<p>-one</p>
+<p>2.two</p>`,
+	},
+}
+
+//
+// More extensive general test cases
+//
+var casesGeneral = [...]TestCase{
 	{
 		desc: "Invalid Ordered and Unordered lists (missing space between marker and content)",
 		md:   `-one
@@ -184,7 +366,7 @@ a. Third item
 <li>Third item</li>
 </ol>`},
 	{
-		desc: "Simple Ordered List with same roman numeral (lowercase)",
+		desc: "Simple Ordered List with same roman numerals (lowercase)",
 		md:   `i. First item
 i. Second item
 i. Third item
@@ -874,70 +1056,141 @@ b. Continues the alphabetic list
 `},
 }
 
-func TestFancyLists(t *testing.T) {
-	color.Cyan("  + Running Basic FancyLists tests\n      (all Goldmark Extensions disabled)...\n")
-	for i, c := range cases {
-		testutil.DoTestCase(markdown, testutil.MarkdownTestCase{
-			No:          i,
-			Description: c.desc,
-			Markdown:    c.md,
-			Expected:    c.html,
-		}, t)
-	}
+//
+// Tests with block attributes extension installed
+//
+var casesBlockAttributes = [...]TestCase{
+	{
+		desc: "ATTR: Invalid Ordered and Unordered lists (missing space between marker and content)",
+		md:   `-one
+
+2.two`,
+		html: `<p>-one</p>
+<p>2.two</p>`},
+	{
+		desc: "ATTR: Simple Unordered List with '-' and {.sbs} class attribute",
+		md:   `- First item
+- Second item
+- Third item
+{.sbs}
+`,
+		html: `<ul class="sbs">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ul>`},
+	{
+		desc: "ATTR: Simple Ordered List with numbers and {.sbs} class attribute",
+		md:   `1. First item
+2. Second item
+3. Third item
+{.sbs}
+`,
+		html: `<ol class="fancy fl-num sbs" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "ATTR: Simple Unordered List with '-' and {.foo} class attribute",
+		md:   `- First item
+- Second item
+- Third item
+{.foo}
+`,
+		html: `<ul class="foo">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ul>`},
+	{
+		desc: "ATTR: Simple Ordered List with numbers and {.foo} class attribute",
+		md:   `1. First item
+2. Second item
+3. Third item
+{.foo}
+`,
+		html: `<ol class="fancy fl-num foo" type="1" start="1">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: `ATTR: Simple Unordered List with '-' and {.foo} class attribute with bar="baz" custom attribute`,
+		md:   `- First item
+- Second item
+- Third item
+{.foo bar="baz"}
+`,
+		html: `<ul class="foo" bar="baz">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ul>`},
+	{
+		desc: `ATTR: Simple Ordered List with numbers and {.foo} class attribute with bar="baz" custom attribute`,
+		md:   `1. First item
+2. Second item
+3. Third item
+{.foo bar="baz"}
+`,
+		html: `<ol class="fancy fl-num foo" type="1" start="1" bar="baz">
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>`},
+	{
+		desc: "ATTR: Multi-Level Unordered List with {.foo} class attribute on level 1 and {.bar} class attribute on level 2",
+		md:   `- First item
+- Second item
+  + Subitem one
+  + Subitem two
+    * Subsubitem one
+	* Subsubitem two
+  + Subitem three
+  + Subitem four
+  {.baz}
+- Third item
+{.foo}
+`,
+		html: `<ul class="foo">
+<li>First item</li>
+<li>Second item
+<ul class="baz">
+<li>Subitem one</li>
+<li>Subitem two
+<ul>
+<li>Subsubitem one</li>
+<li>Subsubitem two</li>
+</ul>
+</li>
+<li>Subitem three</li>
+<li>Subitem four</li>
+</ul>
+</li>
+<li>Third item</li>
+</ul>`},
+	{
+		desc: "ATTR: Multi-Level Ordered List with {.foo} class attribute on level 1 and {.baz} class attribute on level 2",
+		md:   `1. First item
+2. Second item
+   1. Subitem one
+   2. Subitem two
+   {.baz}
+3. Third item
+{.foo}
+`,
+		html: `<ol class="fancy fl-num foo" type="1" start="1">
+<li>First item</li>
+<li>Second item
+<ol class="fancy fl-num baz" type="1" start="1">
+<li>Subitem one</li>
+<li>Subitem two</li>
+</ol>
+</li>
+<li>Third item</li>
+</ol>
+`},
 }
 
-func TestFancyListsGFM(t *testing.T) {
-	color.Green("  + Running Basic (same) FancyLists tests \n      with GFM and PHP Markdown Extensions enabled...\n")
-	for i, c := range cases {
-		testutil.DoTestCase(mdGFM, testutil.MarkdownTestCase{
-			No:          i,
-			Description: c.desc,
-			Markdown:    c.md,
-			Expected:    c.html,
-		}, t)
-	}
-}
 
-type createOptions struct {
-	blockAttributes bool
-	enableGFM       bool
-}
-
-// CreateGoldmarkInstance creates and configures a new Goldmark instance.
-// The options parameter allows for customization of the instance.
-func CreateGoldmarkInstance(opt createOptions) goldmark.Markdown {
-	// Initialize a new Goldmark instance with default options for testing fancylists.
-    options := []goldmark.Option{
-        goldmark.WithParserOptions(),
-        goldmark.WithExtensions(
-			&FancyLists{},
-        ),
-    }
-
-	// Enable GitHub Flavored Markdown (GFM) extensions if requested.
-	// Also enables PHP Markdown Definition List and Footnote extensions.
-	if opt.enableGFM {
-		options = append(options,
-			goldmark.WithExtensions(
-				extension.GFM,
-				extension.DefinitionList,
-				extension.Footnote,
-				// extension.Typographer,
-			),
-		)
-	}
-
-	// Enable github.com/mdigger/goldmark-attributes if requested.
-	// currently used by fancylistsattributes_test.go
-	if opt.blockAttributes {
-		options = append(options,
-			blockattr.Enable,
-			goldmark.WithParserOptions(
-	            parser.WithAutoHeadingID(), // Automatically generate IDs for headings
-				parser.WithAttribute(),
-			),
-		)
-	}
-
-    return goldmark.New(options...)
-}
