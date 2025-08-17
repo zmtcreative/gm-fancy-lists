@@ -13,7 +13,7 @@ including alphabetic markers, roman numeral markers, and hash continuation marke
 
 This extension overrides Goldmark's standard **List** and **ListItem** handling and may potentially
 interfere with other extensions that modify list behavior. It is being used in another project
-(*currently private*) that I'm working on with many other commonly used Goldmark extensions and
+that I'm working on, using many other commonly used Goldmark extensions, and
 **seems** to be working fine without breaking anything.
 
 **However, use with caution in production environments and thoroughly test compatibility with your
