@@ -1,44 +1,5 @@
-// Package fancylists provides a Goldmark extension that adds support for Pandoc-style "fancy lists".
-//
-// This extension extends Goldmark's list parsing to support additional list marker types
-// including alphabetic markers (a., b., c. or A., B., C.), roman numeral markers
-// (i., ii., iii. or I., II., III.), and hash continuation markers (#.) that continue
-// the current list numbering sequence.
-//
-// # Features
-//
-//   - Numeric lists: 1., 2., 3., etc.
-//   - Lowercase alphabetic lists: a., b., c., etc.
-//   - Uppercase alphabetic lists: A., B., C., etc.
-//   - Lowercase roman numeral lists: i., ii., iii., etc. (starting with 'i' only)
-//   - Uppercase roman numeral lists: I., II., III., etc. (starting with 'I' only)
-//   - Hash continuation: #. continues the current list type and numbering
-//   - Automatic type detection and list separation when types change
-//   - Proper HTML rendering with CSS classes for styling
-//
-// # Usage
-//
-//	import (
-//		"github.com/yuin/goldmark"
-//		"github.com/ZMT-Creative/gm-fancy-lists"
-//	)
-//
-//	md := goldmark.New(
-//		goldmark.WithExtensions(
-//			&fancylists.FancyLists{},
-//		),
-//	)
-//
-// # HTML Output
-//
-// The extension generates HTML with specific CSS classes for each list type:
-//   - fl-num: Numeric lists
-//   - fl-lcalpha: Lowercase alphabetic lists
-//   - fl-ucalpha: Uppercase alphabetic lists
-//   - fl-lcroman: Lowercase roman numeral lists
-//   - fl-ucroman: Uppercase roman numeral lists
-//
-// All ordered lists include a "fancy" class and appropriate type and start attributes.
+// Package fancylists provides a Goldmark extension for Pandoc-style "fancy lists".
+// Supports alphabetic (a., A.), roman numeral (i., I.), and hash continuation (#.) markers.
 package fancylists
 
 import (
@@ -61,46 +22,23 @@ type listItemType int
 
 // List item type constants for different marker styles.
 const (
-	// notList indicates the line is not a list item
 	notList listItemType = iota
-	// bulletList indicates an unordered list item (-, *, +)
 	bulletList
-	// orderedList indicates a standard numeric list item (1., 2., 3.)
 	orderedList
-	// orderedListFancy indicates an extended list item (a., A., i., I., #.)
 	orderedListFancy
 )
 
 // Internal parser context keys for state management.
 var (
-	// skipListParserKey is used to prevent recursive list parsing
-	skipListParserKey = parser.NewContextKey()
-	// emptyListItemWithBlankLines tracks list items that start with blank lines
+	skipListParserKey           = parser.NewContextKey()
 	emptyListItemWithBlankLines = parser.NewContextKey()
-	// listItemFlagValue is a sentinel value used for context flags
-	listItemFlagValue interface{} = true
+	listItemFlagValue           interface{} = true
 )
 
-// FancyLists is the main extension struct that implements goldmark.Extender.
-//
-// Add this extension to a Goldmark instance to enable fancy list support:
-//
-//	md := goldmark.New(
-//		goldmark.WithExtensions(&FancyLists{}),
-//	)
+// FancyLists extends Goldmark to support fancy list markers.
 type FancyLists struct{}
 
-// Extend implements goldmark.Extender interface.
-// It registers the fancy list parsers and renderers with the Goldmark instance.
-//
-// The extension registers:
-//   - fancyListParser: Handles list container parsing with priority 100
-//   - fancyListItemParser: Handles individual list item parsing with priority 101
-//   - fancyListHTMLRenderer: Renders list containers to HTML with CSS classes
-//   - fancyListItemHTMLRenderer: Renders list items to HTML
-//
-// These parsers have higher priority than Goldmark's default list parsers
-// to ensure fancy list syntax is processed correctly.
+// Extend implements goldmark.Extender interface to register parsers and renderers.
 func (e *FancyLists) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(parser.WithBlockParsers(
 		util.Prioritized(&fancyListParser{}, 100),     // Higher priority than default list parser (300)
@@ -112,22 +50,8 @@ func (e *FancyLists) Extend(m goldmark.Markdown) {
 	))
 }
 
-// parseListItem analyzes a line of text to determine if it contains a list item marker
-// and extracts relevant information about the marker and content.
-//
-// This function is based on Goldmark's parseListItem but extended to handle fancy list types
-// including alphabetic markers, roman numerals, and hash continuation markers.
-//
-// Returns:
-//   - [6]int: Array containing position information [0, indentWidth, markerStart, markerEnd, contentStart, contentEnd]
-//   - listItemType: The type of list item detected (notList, bulletList, orderedList, orderedListFancy)
-//
-// The function handles:
-//   - Bullet list markers: -, *, +
-//   - Numeric markers: 1-9 digits followed by . or )
-//   - Alphabetic markers: 1-6 letters followed by . or )
-//   - Hash continuation markers: # followed by . or )
-//   - Proper indentation validation (max 3 spaces)
+// parseListItem analyzes a line of text to determine if it contains a list item marker.
+// Returns position information and list item type.
 func parseListItem(line []byte) ([6]int, listItemType) {
 	i := 0
 	l := len(line)
@@ -224,14 +148,6 @@ func parseListItem(line []byte) ([6]int, listItemType) {
 	return ret, typ
 }
 
-// matchesListItem checks if a line contains a valid list item marker.
-// It wraps parseListItem with additional validation based on strict mode.
-//
-// Parameters:
-//   - source: The line of text to analyze
-//   - strict: If true, applies stricter indentation rules (max 3 spaces)
-//
-// Returns the same values as parseListItem if valid, or notList type if invalid.
 func matchesListItem(source []byte, strict bool) ([6]int, listItemType) {
 	m, typ := parseListItem(source)
 	if typ != notList && (!strict || strict && m[1] < 4) {
@@ -240,15 +156,6 @@ func matchesListItem(source []byte, strict bool) ([6]int, listItemType) {
 	return m, notList
 }
 
-// calcListOffset calculates the content offset for a list item based on its marker.
-// This determines how much subsequent lines need to be indented to be considered
-// part of the same list item.
-//
-// Parameters:
-//   - source: The source line containing the list item
-//   - match: Position array from parseListItem
-//
-// Returns the calculated offset for content alignment.
 func calcListOffset(source []byte, match [6]int) int {
 	var offset int
 	if match[4] < 0 || util.IsBlank(source[match[4]:]) { // list item starts with a blank line
@@ -262,8 +169,6 @@ func calcListOffset(source []byte, match [6]int) int {
 	return offset
 }
 
-// lastOffset returns the offset of the last list item in a list node.
-// This is used to determine the expected indentation for continuing list items.
 func lastOffset(node ast.Node) int {
 	lastChild := node.LastChild()
 	if lastChild != nil {
@@ -274,20 +179,6 @@ func lastOffset(node ast.Node) int {
 
 // Helper functions for converting alphabetic and roman numeral markers to numbers
 
-// getListTypeFromMarker determines the HTML type attribute and CSS class
-// that should be used for a list based on its marker.
-//
-// This function analyzes the marker bytes and list item type to determine:
-//   - The HTML type attribute value ("1", "a", "A", "i", "I")
-//   - The corresponding CSS class suffix ("fl-num", "fl-lcalpha", etc.)
-//
-// Parameters:
-//   - markerBytes: The raw marker text (e.g., "a", "i", "III", "#")
-//   - typ: The list item type (orderedList or orderedListFancy)
-//
-// Returns:
-//   - string: HTML type attribute value
-//   - string: CSS class suffix for styling
 func getListTypeFromMarker(markerBytes []byte, typ listItemType) (string, string) {
 	marker := string(markerBytes)
 
@@ -323,22 +214,6 @@ func getListTypeFromMarker(markerBytes []byte, typ listItemType) (string, string
 	return "1", "fl-num"
 }
 
-// alphabeticToNumber converts alphabetic markers to their numeric position.
-//
-// This function converts alphabetic sequences like "a", "b", "z", "aa", "ab" etc.
-// to their corresponding numeric positions (1, 2, 26, 27, 28, etc.).
-// It supports both single and multi-character alphabetic markers.
-//
-// Parameters:
-//   - s: The alphabetic marker string (e.g., "a", "z", "aa")
-//
-// Returns the numeric position, or 0 if the input is invalid.
-//
-// Examples:
-//   - "a" -> 1
-//   - "z" -> 26
-//   - "aa" -> 27
-//   - "ab" -> 28
 func alphabeticToNumber(s string) int {
 	if len(s) == 0 {
 		return 0
@@ -364,8 +239,6 @@ func alphabeticToNumber(s string) int {
 	return result
 }
 
-// pow computes base raised to the power of exp using integer arithmetic.
-// This is a helper function for alphabeticToNumber calculations.
 func pow(base, exp int) int {
 	result := 1
 	for exp > 0 {
@@ -375,26 +248,6 @@ func pow(base, exp int) int {
 	return result
 }
 
-// romanToNumber converts roman numeral strings to their numeric values.
-//
-// This function specifically handles roman numerals that begin with 'i' or 'I'
-// (case insensitive) to distinguish them from alphabetic markers. Roman numerals
-// that don't start with 'i'/'I' (like "vi", "VII") are treated as alphabetic markers.
-//
-// This design choice ensures that sequences like "vi. vii. viii." are treated as
-// alphabetic rather than roman, following Pandoc's behavior.
-//
-// Parameters:
-//   - s: The roman numeral string (e.g., "i", "ii", "III", "IV")
-//
-// Returns:
-//   - int: The numeric value of the roman numeral
-//   - bool: True if the string is a valid roman numeral starting with i/I
-//
-// Examples:
-//   - "i" -> (1, true)
-//   - "IV" -> (4, true)
-//   - "vi" -> (0, false) - treated as alphabetic
 func romanToNumber(s string) (int, bool) {
 	// Check if it starts with valid roman numeral pattern
 	if len(s) == 0 {
@@ -419,21 +272,8 @@ func romanToNumber(s string) (int, bool) {
 	return num, true
 }
 
-// fancyListParser implements parser.BlockParser for parsing fancy list containers.
-//
-// This parser handles the creation and continuation of list containers that support
-// extended marker types. It works in conjunction with fancyListItemParser to provide
-// complete fancy list support.
-//
-// The parser:
-//   - Detects when a new list should start
-//   - Determines the list type based on the first marker
-//   - Handles type changes that require closing the current list
-//   - Manages nested list contexts
 type fancyListParser struct{}
 
-// Trigger returns the byte values that can trigger this parser.
-// This includes all possible list marker characters: bullets, digits, letters, and hash.
 func (b *fancyListParser) Trigger() []byte {
 	// Include all possible list markers: bullets, numbers, letters, and hash
 	triggers := []byte{'-', '+', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#'}
@@ -449,22 +289,6 @@ func (b *fancyListParser) Trigger() []byte {
 	return triggers
 }
 
-// Open attempts to start a new list when a list marker is encountered.
-//
-// This method:
-//   - Validates that a new list should start (not continuing an existing one)
-//   - Analyzes the first marker to determine list type and starting value
-//   - Handles special cases like paragraph interruption rules
-//   - Creates and configures the new list node with appropriate attributes
-//
-// Parameters:
-//   - parent: The parent AST node where the list would be added
-//   - reader: Text reader for accessing the source content
-//   - pc: Parser context for state management
-//
-// Returns:
-//   - ast.Node: The new list node, or nil if no list should start
-//   - parser.State: Parser state indicating whether the node has children
 func (b *fancyListParser) Open(parent ast.Node, reader text.Reader, pc parser.Context) (ast.Node, parser.State) {
 	last := pc.LastOpenedBlock().Node
 	if _, lok := last.(*ast.List); lok || pc.Get(skipListParserKey) != nil {
@@ -548,25 +372,6 @@ func (b *fancyListParser) Open(parent ast.Node, reader text.Reader, pc parser.Co
 	return node, parser.HasChildren
 }
 
-// Continue determines whether the current list should continue or close
-// when encountering the next line.
-//
-// This method implements the core logic for fancy list type detection and
-// automatic list separation. When the list type changes (e.g., from numeric
-// to alphabetic), it closes the current list to allow a new one to start.
-//
-// Key features:
-//   - Detects type changes between list items at the same level
-//   - Handles context-aware disambiguation (e.g., 'i' as alphabetic vs roman)
-//   - Preserves type continuity for hash (#) markers
-//   - Manages proper indentation and nesting rules
-//
-// Parameters:
-//   - node: The current list node being processed
-//   - reader: Text reader for accessing the source content
-//   - pc: Parser context for state management
-//
-// Returns parser.State indicating whether to continue, close, or handle children.
 func (b *fancyListParser) Continue(node ast.Node, reader text.Reader, pc parser.Context) parser.State {
 	list := node.(*ast.List)
 	line, _ := reader.PeekLine()
@@ -658,17 +463,6 @@ func (b *fancyListParser) Continue(node ast.Node, reader text.Reader, pc parser.
 	return parser.Continue | parser.HasChildren
 }
 
-// Close finalizes the list node after all items have been processed.
-//
-// This method handles post-processing tasks such as:
-//   - Determining if the list should be "tight" (no paragraph wrapping)
-//   - Converting paragraphs to text blocks in tight lists
-//   - Cleaning up the final list structure
-//
-// Parameters:
-//   - node: The list node being closed
-//   - reader: Text reader (unused in this implementation)
-//   - pc: Parser context (unused in this implementation)
 func (b *fancyListParser) Close(node ast.Node, reader text.Reader, pc parser.Context) {
 	list := node.(*ast.List)
 
@@ -703,27 +497,16 @@ func (b *fancyListParser) Close(node ast.Node, reader text.Reader, pc parser.Con
 	}
 }
 
-// CanInterruptParagraph returns true if this parser can interrupt a paragraph.
-// Fancy lists can interrupt paragraphs under certain conditions.
 func (b *fancyListParser) CanInterruptParagraph() bool {
 	return true
 }
 
-// CanAcceptIndentedLine returns false as list parsers don't handle indented lines directly.
-// Indented content is handled by the list item parser.
 func (b *fancyListParser) CanAcceptIndentedLine() bool {
 	return false
 }
 
-// fancyListItemParser implements parser.BlockParser for parsing individual list items.
-//
-// This parser handles the creation and continuation of list items within fancy lists.
-// It works together with fancyListParser to provide complete list item processing
-// including content parsing and proper nesting.
 type fancyListItemParser struct{}
 
-// Trigger returns the byte values that can trigger this parser.
-// Same as fancyListParser since list items use the same marker characters.
 func (b *fancyListItemParser) Trigger() []byte {
 	// Include all possible list markers: bullets, numbers, letters, and hash
 	triggers := []byte{'-', '+', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#'}
@@ -739,9 +522,6 @@ func (b *fancyListItemParser) Trigger() []byte {
 	return triggers
 }
 
-// Open determines if this parser should handle a line and returns the container node if so.
-// Returns nil if the line cannot be handled by this parser.
-// This method checks if we're within a list context and if the current line matches a list item pattern.
 func (b *fancyListItemParser) Open(parent ast.Node, reader text.Reader, pc parser.Context) (ast.Node, parser.State) {
 	list, lok := parent.(*ast.List)
 	if !lok { // list item must be a child of a list
@@ -778,9 +558,6 @@ func (b *fancyListItemParser) Open(parent ast.Node, reader text.Reader, pc parse
 	return node, parser.HasChildren
 }
 
-// Continue returns how to continue processing this container node.
-// For list items, continuation is handled by checking indentation and content.
-// This method determines whether the current line should be part of the list item.
 func (b *fancyListItemParser) Continue(node ast.Node, reader text.Reader, pc parser.Context) parser.State {
 	line, _ := reader.PeekLine()
 	if util.IsBlank(line) {
@@ -808,42 +585,27 @@ func (b *fancyListItemParser) Continue(node ast.Node, reader text.Reader, pc par
 	return parser.Continue | parser.HasChildren
 }
 
-// Close is called when the container node is being closed.
-// For list items, no special cleanup is required.
 func (b *fancyListItemParser) Close(node ast.Node, reader text.Reader, pc parser.Context) {
 	// nothing to do
 }
 
-// CanInterruptParagraph returns true if this parser can interrupt a paragraph.
-// List items can interrupt paragraphs to start new lists.
 func (b *fancyListItemParser) CanInterruptParagraph() bool {
 	return true
 }
 
-// CanAcceptIndentedLine returns false as list item parsers don't handle indented lines directly.
-// Indented content within list items is handled by other parsers.
 func (b *fancyListItemParser) CanAcceptIndentedLine() bool {
 	return false
 }
 
 // fancyListHTMLRenderer provides HTML rendering for fancy lists.
-//
-// This renderer generates proper HTML output for lists with custom markers,
-// including appropriate CSS classes and start attributes for ordered lists.
-// It extends the standard Goldmark HTML renderer to handle fancy list features.
 type fancyListHTMLRenderer struct {
 	html.Config
 }
 
-// RegisterFuncs registers the rendering functions for list nodes.
-// This method tells Goldmark to use our custom renderList function for ast.KindList nodes.
 func (r *fancyListHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(ast.KindList, r.renderList)
 }
 
-// renderList renders HTML for list elements (both ordered and unordered).
-// This method handles the opening and closing of list tags, including special
-// handling for fancy list types with custom CSS classes and start attributes.
 func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.List)
 	tag := "ul"
@@ -972,23 +734,14 @@ func (r *fancyListHTMLRenderer) renderList(w util.BufWriter, source []byte, node
 }
 
 // fancyListItemHTMLRenderer provides HTML rendering for fancy list items.
-//
-// This renderer generates HTML for individual list items within fancy lists.
-// Unlike standard list item rendering, this renderer does NOT add value attributes
-// to list items, relying instead on the start attribute of the parent list.
 type fancyListItemHTMLRenderer struct {
 	html.Config
 }
 
-// RegisterFuncs registers the rendering functions for list item nodes.
-// This method tells Goldmark to use our custom renderListItem function for ast.KindListItem nodes.
 func (r *fancyListItemHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(ast.KindListItem, r.renderListItem)
 }
 
-// renderListItem renders HTML for individual list item elements.
-// This method creates <li> tags without value attributes, allowing the parent
-// list's start attribute and CSS classes to handle proper numbering and styling.
 func (r *fancyListItemHTMLRenderer) renderListItem(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
 		_, _ = w.WriteString("<li")
