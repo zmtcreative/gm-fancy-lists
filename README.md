@@ -63,9 +63,7 @@ import (
 func main() {
     // Create Goldmark instance with fancy lists extension
     md := goldmark.New(
-        goldmark.WithExtensions(
-            &fancylists.FancyLists{},
-        ),
+        goldmark.WithExtensions(fancylists.FancyLists),
     )
 
     // Example markdown with fancy lists
@@ -90,6 +88,24 @@ ii. Second roman numeral
     fmt.Println(buf.String())
 }
 ```
+
+Alternately, you can also use this init method:
+
+```go
+    // Create Goldmark instance with fancy lists extension
+    md := goldmark.New(
+        goldmark.WithExtensions(&fancylists.FancyListsOptions{}),
+    )
+```
+
+> [!NOTE]
+>
+> These are functionally equivalent -- since this extension currently takes no options, just use
+> the first option. In the event that options are later added to the extension, the standard
+> `fancylists.FancyList` init method will select the most likely default options, while the
+> `&fancylists.FancyListsOptions{}` init method will allow you to customize these options. But
+> since there currently are no options, this is just redundant for now. :grin:
+
 
 ## Supported List Types
 
