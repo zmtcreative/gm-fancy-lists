@@ -9,40 +9,6 @@
 This Goldmark extension adds support for Pandoc-style "fancy lists" with extended marker types
 including alphabetic markers, roman numeral markers, and hash continuation markers.
 
-## Features
-
-<!-- markdownlint-disable MD033 -->
-
-- **Extended List Markers**: Support for multiple marker types beyond standard numeric lists
-  - **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
-    markers
-  - **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
-    roman numerals <br/>(*see [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
-  - **Hash Continuation**: Use `#.` to continue the current list numbering sequence
-- **Automatic Type Detection**: Lists automatically separate when marker types change at the same
-  level
-- **CSS-Friendly Output**: Generates HTML with specific CSS classes for easy styling
-- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions <br/>(*mostly, see
-  [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
-
-## General Warning
-
-**This extension overrides Goldmark's standard `List` and `ListItem` handling and may potentially
-interfere with other extensions that modify list behavior.** It handles both unordered (bullet)
-lists and the ordered list types (numbered, alphabetical and roman numerals).
-
-The unit tests for this extension test just this extension alone **and** additional tests are run
-with the built-in Goldmark `extension.GFM`, `extension.DefinitionList` and `extension.Footnote`
-extensions. We also run tests with the block attributes extension
-`github.com/mdigger/goldmark-attributes` (**and the built-in Goldmark extensions**) all enabled and
-all tests are currently passing.
-
-This extension is being used in another project that we're working on, using many other commonly
-used Goldmark extensions and appears to be working fine.
-
-**However, use with caution in production environments and thoroughly test compatibility with your
-specific extension stack.**
-
 ## Installation
 
 ```bash
@@ -50,6 +16,11 @@ go get github.com/ZMT-Creative/gm-fancy-lists
 ```
 
 ## Quick Start
+
+> [!IMPORTANT]
+>
+> The initialization method has changed starting with v0.2.0. The initialization method below is
+> currently the preferred method for enabling the extension.
 
 ```go
 package main
@@ -102,11 +73,46 @@ Alternatively, you can use this initialization method instead:
 
 > [!NOTE]
 >
-> These are functionally equivalent -- since this extension currently takes no options, just use
-> the first option. In the event that options are later added to the extension, the standard
-> `fancylists.FancyLists` initialization method will select the most likely default options, while the
-> `&fancylists.FancyListsOptions{}` initialization method will allow you to customize these options. But
-> since there currently are no options, this is just redundant for now. :grin:
+> These are currently equivalent -- since this extension takes no options (*at this time*), just
+> use the first initialization method. In the event that options are later added to the extension,
+> the standard `fancylists.FancyLists` initialization method will select the most likely default
+> options, while the `&fancylists.FancyListsOptions{}` initialization method will allow you to
+> customize these options. But since there currently are no options, this is just redundant for
+> now.
+
+## Features
+
+<!-- markdownlint-disable MD033 -->
+
+- **Extended List Markers**: Support for multiple marker types beyond standard numeric lists
+  - **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
+    markers
+  - **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
+    roman numerals <br/>(*see [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
+  - **Hash Continuation**: Use `#.` to continue the current list numbering sequence
+- **Automatic Type Detection**: Lists automatically separate when marker types change at the same
+  level
+- **CSS-Friendly Output**: Generates HTML with specific CSS classes for easy styling
+- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions <br/>(*mostly, see
+  [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
+
+## General Warning
+
+**This extension overrides Goldmark's standard `List` and `ListItem` handling and may potentially
+interfere with other extensions that modify list behavior.** It handles both unordered (bullet)
+lists and the ordered list types (numbered, alphabetical and roman numerals).
+
+The unit tests for this extension test just this extension alone **and** additional tests are run
+with the built-in Goldmark `extension.GFM`, `extension.DefinitionList` and `extension.Footnote`
+extensions. We also run tests with the block attributes extension
+`github.com/mdigger/goldmark-attributes` (**and the built-in Goldmark extensions**) all enabled and
+all tests are currently passing.
+
+This extension is being used in another project that we're working on, using many other commonly
+used Goldmark extensions and appears to be working fine.
+
+**However, use with caution in production environments and thoroughly test compatibility with your
+specific extension stack.**
 
 ## Supported List Types
 
