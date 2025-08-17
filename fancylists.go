@@ -36,10 +36,13 @@ var (
 )
 
 // FancyLists extends Goldmark to support fancy list markers.
-type FancyLists struct{}
+type FancyListsOptions struct{}
+
+// Helper variable for default options
+var FancyLists = &FancyListsOptions{}
 
 // Extend implements goldmark.Extender interface to register parsers and renderers.
-func (e *FancyLists) Extend(m goldmark.Markdown) {
+func (e *FancyListsOptions) Extend(m goldmark.Markdown) {
 	m.Parser().AddOptions(parser.WithBlockParsers(
 		util.Prioritized(&fancyListParser{}, 100),     // Higher priority than default list parser (300)
 		util.Prioritized(&fancyListItemParser{}, 101), // Higher priority than default list item parser (400)
