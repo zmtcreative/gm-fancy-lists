@@ -11,10 +11,18 @@ including alphabetic markers, roman numeral markers, and hash continuation marke
 
 ## General Warning
 
-This extension overrides Goldmark's standard **List** and **ListItem** handling and may potentially
-interfere with other extensions that modify list behavior. It is being used in another project
-that I'm working on, using many other commonly used Goldmark extensions, and
-**seems** to be working fine without breaking anything.
+**This extension overrides Goldmark's standard `List` and `ListItem` handling and may potentially
+interfere with other extensions that modify list behavior.** It handles both unordered (bullet)
+lists and the ordered list types (numbered, alphabetical and roman numerals).
+
+The unit tests for this extension test just this extension alone **and** additional tests are run
+with the built-in Goldmark `extension.GFM`, `extension.DefinitionList` and `extension.Footnote`
+extensions. We also run tests with the block attributes extension
+`github.com/mdigger/goldmark-attributes` (**and the built-in Goldmark extensions**) all enabled and
+all tests are currently passing.
+
+This extension is being used in another project that we're working on, using many other commonly
+used Goldmark extensions, and **seems** to be working fine without breaking anything.
 
 **However, use with caution in production environments and thoroughly test compatibility with your
 specific extension stack.**
@@ -22,16 +30,16 @@ specific extension stack.**
 ## Features
 
 - **Extended List Markers**: Support for multiple marker types beyond standard numeric lists
-- **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
-  markers
-- **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
-  roman numerals (partial implementation see [Roman Numeral Lists](#roman-numeral-lists) later in
-  this document)
-- **Hash Continuation**: Use `#.` to continue the current list numbering sequence
+  - **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
+    markers
+  - **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
+    roman numerals <br/>(*see [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
+  - **Hash Continuation**: Use `#.` to continue the current list numbering sequence
 - **Automatic Type Detection**: Lists automatically separate when marker types change at the same
   level
 - **CSS-Friendly Output**: Generates HTML with specific CSS classes for easy styling
-- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions
+- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions <br/>(*mostly, see
+  [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
 
 ## Installation
 
@@ -156,7 +164,7 @@ i. Third roman numeral item
 ### Hash `#.` Continuation Character
 
 As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with a number, letter
-(or the `i/I` letter when starting a roman numeral ordered list), you can use the `#.` to mark all
+(or the `i/I` letter when starting a roman numeral ordered list), you can use the hash-continuation marker (`#.`) to mark all
 subsequent items at that list level. The use of the `#.` continuation character is optional for
 number and letter ordered lists.
 
@@ -175,7 +183,7 @@ roman numeral list (start value = `100`).
 
 It is assumed (whether you like it or not :smile:) that most people don't need to start a roman
 numeral ordered list with some arbitrary large roman numeral (like `MMXXV` for `2025`). This was a
-design decision on my part to keep roman numeral handling relatively simple.
+design decision on our part to keep roman numeral handling relatively simple.
 
 These are valid ordered lists using roman numerals:
 
@@ -225,7 +233,7 @@ starting with the alphabetic character `v` and increments the new list according
 
 ## HTML Output
 
-The extension generates HTML with CSS classes for easy styling of ordered lists:
+The extension generates HTML with CSS classes for easy styling of **ordered** lists:
 
 - **Numeric lists**: `class="fancy fl-num"`
 - **Lowercase alphabetic**: `class="fancy fl-lcalpha"`
@@ -253,7 +261,9 @@ ol.fancy {
 }
 ```
 
-Styling using these classes is optional. The default browsers styling should be adequate for most usage.
+> [!NOTE]
+>
+> Styling using these classes is optional. The default browsers styling should be adequate for most usage.
 
 ## List Type Changes
 
@@ -284,11 +294,12 @@ This generates three separate `<ol>` elements with different `type` attributes a
 ```
 
 > [!TIP]
+>
 > **Don't use this feature if you can avoid it!**
 >
 > **It is better to separate new ordered lists with a blank line.** Depending on this list-type
-> change feature parsing correctly, instead of following general CommonMark list handling syntax,
-> can lead to strange bugs in the way your Markdown is parsed, especially with roman numerals.
+> change feature parsing correctly (*instead of following general CommonMark list handling syntax*)
+> can lead to strange qwirks in the way your Markdown is parsed, especially with roman numerals.
 >
 > This feature is here to (*mostly*) match the Pandoc-style handling, but it is **NOT** a perfect
 > match and thus should be avoided if possible in your Markdown files.
@@ -311,12 +322,12 @@ parser will correctly transition to the new roman numeral list.
 ## Dependencies
 
 - [Goldmark](https://github.com/yuin/goldmark) - The CommonMark-compliant Markdown parser
-- [roman numeral](https://github.com/brandenc40/romannumeral) - Roman numeral conversion utilities
+- [Roman Numeral](https://github.com/brandenc40/romannumeral) - Roman numeral conversion utilities
 
 ## Compatibility Notes
 
 - **Goldmark Version**: Tested with Goldmark v1.7.13
-- **Go Version**: Requires Go 1.16 or later
+- **Go Version**: Requires Go 1.22 or later
 - **Extension Conflicts**: May conflict with other extensions that override list parsing behavior
 - **Standard Compliance**: Extends CommonMark specification following Pandoc conventions
 
