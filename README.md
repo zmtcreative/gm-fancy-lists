@@ -9,6 +9,22 @@
 This Goldmark extension adds support for Pandoc-style "fancy lists" with extended marker types
 including alphabetic markers, roman numeral markers, and hash continuation markers.
 
+## Features
+
+<!-- markdownlint-disable MD033 -->
+
+- **Extended List Markers**: Support for multiple marker types beyond standard numeric lists
+  - **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
+    markers
+  - **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
+    roman numerals <br/>(*see [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
+  - **Hash Continuation**: Use `#.` to continue the current list numbering sequence
+- **Automatic Type Detection**: Lists automatically separate when marker types change at the same
+  level
+- **CSS-Friendly Output**: Generates HTML with specific CSS classes for easy styling
+- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions <br/>(*mostly, see
+  [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
+
 ## General Warning
 
 **This extension overrides Goldmark's standard `List` and `ListItem` handling and may potentially
@@ -22,24 +38,10 @@ extensions. We also run tests with the block attributes extension
 all tests are currently passing.
 
 This extension is being used in another project that we're working on, using many other commonly
-used Goldmark extensions, and **seems** to be working fine without breaking anything.
+used Goldmark extensions and appears to be working fine.
 
 **However, use with caution in production environments and thoroughly test compatibility with your
 specific extension stack.**
-
-## Features
-
-- **Extended List Markers**: Support for multiple marker types beyond standard numeric lists
-  - **Alphabetic Lists**: Lowercase (`a.`, `b.`, `c.`) and uppercase (`A.`, `B.`, `C.`) alphabetic
-    markers
-  - **Roman Numeral Lists**: Lowercase (`i.`, `ii.`, `iii.`) and uppercase (`I.`, `II.`, `III.`)
-    roman numerals <br/>(*see [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
-  - **Hash Continuation**: Use `#.` to continue the current list numbering sequence
-- **Automatic Type Detection**: Lists automatically separate when marker types change at the same
-  level
-- **CSS-Friendly Output**: Generates HTML with specific CSS classes for easy styling
-- **Pandoc Compatibility**: Follows Pandoc's fancy list behavior and conventions <br/>(*mostly, see
-  [Roman Numeral Lists](#roman-numeral-lists) below for caveats*)
 
 ## Installation
 
@@ -57,7 +59,7 @@ import (
     "fmt"
 
     "github.com/yuin/goldmark"
-    "github.com/ZMT-Creative/gm-fancy-lists"
+    fancylists "github.com/ZMT-Creative/gm-fancy-lists"
 )
 
 func main() {
@@ -89,7 +91,7 @@ ii. Second roman numeral
 }
 ```
 
-Alternately, you can also use this init method:
+Alternatively, you can use this initialization method instead:
 
 ```go
     // Create Goldmark instance with fancy lists extension
@@ -102,10 +104,9 @@ Alternately, you can also use this init method:
 >
 > These are functionally equivalent -- since this extension currently takes no options, just use
 > the first option. In the event that options are later added to the extension, the standard
-> `fancylists.FancyList` init method will select the most likely default options, while the
-> `&fancylists.FancyListsOptions{}` init method will allow you to customize these options. But
+> `fancylists.FancyLists` initialization method will select the most likely default options, while the
+> `&fancylists.FancyListsOptions{}` initialization method will allow you to customize these options. But
 > since there currently are no options, this is just redundant for now. :grin:
-
 
 ## Supported List Types
 
@@ -184,22 +185,21 @@ As specified in the Pandoc-style Fancy Lists, after initiating a fancy list with
 subsequent items at that list level. The use of the `#.` continuation character is optional for
 number and letter ordered lists.
 
-However, as noted in the following section [Roman Numeral Lists](#roman-numeral-lists), if you are
-starting a roman numeral ordered list (using `i/I`, `ii/II` `iii/III` or `iv/IV` to start the
-list), you **MUST** use the `#.` continuation character for any subsequent list identifiers that
-don't begin with `i` (or `I`). Otherwise you will get unexpected results.
+If you are starting a roman numeral ordered list (using `i/I`, `ii/II`, `iii/III`, or `iv/IV` to
+start the list), you must use the `#.` (or `#)`) continuation character for any subsequent list
+identifiers that don't begin with `i` (or `I`). Otherwise you will get unexpected results.
 
 ### Roman Numeral Lists
 
-Roman Numerals are a special case that deviates slightly from Pandoc. We **ONLY** accept the roman
+Roman numeral lists are a special case that deviates slightly from Pandoc. We **ONLY** accept the roman
 numeral numbers `1-4` (i.e., `i`, `ii`, `iii` and `iv` and the uppercase equivalents) to indicate
 the **start** of a roman numeral ordered list. This simplifies the parsing of lists, so we don't
 have to figure out if a list starting with a `c` is an alphabetic list (start value = `3`) or a
 roman numeral list (start value = `100`).
 
-It is assumed (whether you like it or not :smile:) that most people don't need to start a roman
-numeral ordered list with some arbitrary large roman numeral (like `MMXXV` for `2025`). This was a
-design decision on our part to keep roman numeral handling relatively simple.
+It is assumed that most people don't need to start a roman numeral ordered list with some arbitrary
+large roman numeral (like `MMXXV` for `2025`). This was a design decision on our part to keep roman
+numeral handling relatively simple.
 
 These are valid ordered lists using roman numerals:
 
@@ -217,7 +217,7 @@ iii. item three
  iv. item four
 ```
 
-This is **NOT** valid roman numeral lists and will result in output different than you might anticipate:
+The following is **NOT** a valid roman numeral list (*the `v.` will NOT be recognized as a roman numeral here*):
 
 ```markdown
   i. item one
@@ -315,22 +315,24 @@ This generates three separate `<ol>` elements with different `type` attributes a
 >
 > **It is better to separate new ordered lists with a blank line.** Depending on this list-type
 > change feature parsing correctly (*instead of following general CommonMark list handling syntax*)
-> can lead to strange qwirks in the way your Markdown is parsed, especially with roman numerals.
+> can lead to strange quirks in the way your Markdown is parsed, especially with roman numerals.
 >
-> This feature is here to (*mostly*) match the Pandoc-style handling, but it is **NOT** a perfect
+> This feature is here to (*mostly*) match the Pandoc-style handling, but it is **not** a perfect
 > match and thus should be avoided if possible in your Markdown files.
 
 ### Special Considerations for Type Changes with Roman Numerals
 
-You **CANNOT** make a list-type change if your current list type is lowercase alphabetic and you
+You **cannot** make a list-type change if your current list type is lowercase alphabetic and you
 use a lowercase `i` to indicate changing to a new lowercase roman numeral ordered list. The parser
-will ignore this and treat the `i` as just another letter identifier in the current list. The same
-is true in reverse -- if you are in an uppercase alphabetic list and you use an uppercase `I`
-expecting to start a new uppercase roman numeral list, the uppercase `I` will be treated as just
-another uppercase letter identifier in the current list.
+will ignore this and treat the `i` as just another letter identifier in the current list.
 
-If you use an uppercase `I` in a current lowercase letter ordered list (and the inverse), the
-parser **WILL** detect the case change and make the transition to the new roman numeral list.
+The same is true in reverse -- if you are in an uppercase alphabetic list and you use an uppercase
+`I` expecting to start a new uppercase roman numeral list, the uppercase `I` will be treated as
+just another uppercase letter identifier in the current list.
+
+If you use an uppercase `I` in a current lowercase lettered ordered list (or a lowercase `i` in an
+uppercase lettered ordered list), the parser **WILL** detect the case change and make the
+transition to the new roman numeral list.
 
 If you place an uppercase or lowercase `i/I` roman numeral in an existing number ordered list, the
 parser will correctly transition to the new roman numeral list.
