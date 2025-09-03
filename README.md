@@ -1,10 +1,10 @@
 # Goldmark Extension for Pandoc-style Fancy Lists
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/ZMT-Creative/gm-fancy-lists.svg)](https://pkg.go.dev/github.com/ZMT-Creative/gm-fancy-lists)
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ZMT-Creative/gm-fancy-lists)
-![GitHub License](https://img.shields.io/github/license/ZMT-Creative/gm-fancy-lists)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/ZMT-Creative/gm-fancy-lists)
-![GitHub Tag](https://img.shields.io/github/v/tag/ZMT-Creative/gm-fancy-lists?include_prereleases&sort=semver)
+[![Go Reference](https://pkg.go.dev/badge/github.com/zmtcreative/gm-fancy-lists.svg)](https://pkg.go.dev/github.com/zmtcreative/gm-fancy-lists)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zmtcreative/gm-fancy-lists)
+![GitHub License](https://img.shields.io/github/license/zmtcreative/gm-fancy-lists)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/zmtcreative/gm-fancy-lists)
+![GitHub Tag](https://img.shields.io/github/v/tag/zmtcreative/gm-fancy-lists?include_prereleases&sort=semver)
 
 This Goldmark extension adds support for Pandoc-style "fancy lists" with extended marker types
 including alphabetic markers, roman numeral markers, and hash continuation markers.
@@ -12,7 +12,7 @@ including alphabetic markers, roman numeral markers, and hash continuation marke
 ## Installation
 
 ```bash
-go get github.com/ZMT-Creative/gm-fancy-lists
+go get github.com/zmtcreative/gm-fancy-lists
 ```
 
 ## Quick Start
@@ -30,7 +30,7 @@ import (
     "fmt"
 
     "github.com/yuin/goldmark"
-    fancylists "github.com/ZMT-Creative/gm-fancy-lists"
+    fancylists "github.com/zmtcreative/gm-fancy-lists"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module github.com/ZMT-Creative/gm-fancy-lists
+module github.com/zmtcreative/gm-fancy-lists
 
 go 1.22
 
